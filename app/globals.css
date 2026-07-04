@@ -1,0 +1,390 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-300: #93c5fd;
+  --color-brand-400: #60a5fa;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-brand-800: #1e40af;
+  --color-brand-900: #1e3a8a;
+  --color-accent-50: #faf5ff;
+  --color-accent-100: #f3e8ff;
+  --color-accent-200: #e9d5ff;
+  --color-accent-300: #d8b4fe;
+  --color-accent-400: #c084fc;
+  --color-accent-500: #a855f7;
+  --color-accent-600: #9333ea;
+  --color-accent-700: #7e22ce;
+  --color-accent-800: #6b21a8;
+  --color-accent-900: #581c87;
+  --color-danger: #ef4444;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-surface: #ffffff;
+  --color-surface-secondary: #f9fafb;
+  --color-border: #e5e7eb;
+  --color-border-light: #f3f4f6;
+  --color-text-primary: #111827;
+  --color-text-secondary: #6b7280;
+  --color-text-muted: #9ca3af;
+  --color-text-tertiary: #d1d5db;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --shadow-soft: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --shadow-card: 0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+  --shadow-elevated: 0 10px 20px -5px rgb(0 0 0 / 0.06), 0 4px 8px -6px rgb(0 0 0 / 0.06);
+  --animate-fade-in: fade-in 0.3s ease-out;
+  --animate-slide-up: slide-up 0.3s ease-out;
+  --animate-shimmer: shimmer 2s infinite;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+*, *::before, *::after {
+  border-color: var(--color-border);
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-surface-secondary);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.gradient-border {
+  position: relative;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--color-brand-400), var(--color-accent-400));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--color-brand-600), var(--color-accent-600));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-btn {
+  background: linear-gradient(135deg, var(--color-brand-500), var(--color-accent-600));
+  transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.gradient-btn:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.gradient-btn:active {
+  transform: translateY(0);
+}
+
+.card-hover {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-elevated);
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--color-border-light) 25%, #e5e7eb 50%, var(--color-border-light) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 2px;
+}
+
+/* ============================================================
+   Dark Mode Theme & System Styles
+   ============================================================ */
+.dark {
+  --color-surface: #0b0f19; /* Slate 950/900 mix */
+  --color-surface-secondary: #030712; /* Gray 950 */
+  --color-border: #1f2937; /* Gray 800 */
+  --color-border-light: #111827; /* Gray 900 */
+  --color-text-primary: #f9fafb; /* Gray 50 */
+  --color-text-secondary: #d1d5db; /* Gray 300 */
+  --color-text-muted: #9ca3af; /* Gray 400 */
+  --color-text-tertiary: #4b5563; /* Gray 600 */
+  
+  color-scheme: dark;
+}
+
+.dark .bg-white {
+  background-color: var(--color-surface) !important;
+}
+
+.dark .bg-surface-secondary {
+  background-color: var(--color-surface-secondary) !important;
+}
+
+.dark .text-text-primary {
+  color: var(--color-text-primary) !important;
+}
+
+.dark .text-text-secondary {
+  color: var(--color-text-secondary) !important;
+}
+
+.dark .text-text-muted {
+  color: var(--color-text-muted) !important;
+}
+
+.dark .border-border {
+  border-color: var(--color-border) !important;
+}
+
+.dark header {
+  background-color: rgba(11, 15, 25, 0.8) !important;
+  border-color: var(--color-border) !important;
+}
+
+.dark input, .dark textarea {
+  background-color: #111827 !important;
+  color: var(--color-text-primary) !important;
+  border-color: var(--color-border) !important;
+}
+
+.dark input:focus, .dark textarea:focus {
+  border-color: var(--color-brand-500) !important;
+  box-shadow: 0 0 0 2px var(--color-brand-900) !important;
+}
+
+/* User profile button and other slate/white buttons */
+.dark button.bg-white, .dark a.bg-white {
+  background-color: #111827 !important;
+  border-color: var(--color-border) !important;
+}
+
+.dark button.bg-white:hover, .dark a.bg-white:hover {
+  background-color: #1f2937 !important;
+}
+
+/* User active buttons - default states */
+.dark .bg-slate-50, .dark .bg-red-50, .dark .bg-green-50, .dark .bg-blue-50, .dark .bg-purple-50, .dark .bg-emerald-50 {
+  background-color: #111827 !important;
+}
+
+.dark .text-\[\#0F172A\] {
+  color: var(--color-text-primary) !important;
+}
+
+/* Modal dropdown cards */
+.dark .bg-white.shadow-xl {
+  background-color: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+}
+
+/* Skeleton items in dark mode */
+.dark .skeleton {
+  background: linear-gradient(90deg, #111827 25%, #1f2937 50%, #111827 75%) !important;
+  background-size: 200% 100% !important;
+}
+
+/* General Brand Active Buttons Overrides (e.g. Communication Type, Recipient selectors) */
+.dark .bg-brand-50 {
+  background-color: rgba(59, 130, 246, 0.18) !important;
+}
+.dark .text-brand-600 {
+  color: var(--color-brand-300, #93c5fd) !important;
+}
+
+/* Desired Tone active button text readability and background styling in dark mode */
+.dark .text-blue-700 {
+  color: var(--color-brand-300, #93c5fd) !important;
+}
+.dark .text-purple-700 {
+  color: var(--color-accent-300, #d8b4fe) !important;
+}
+.dark .text-red-700 {
+  color: #fca5a5 !important;
+}
+.dark .text-emerald-700 {
+  color: #6ee7b7 !important;
+}
+.dark .text-slate-700 {
+  color: #cbd5e1 !important;
+}
+.dark .text-indigo-700 {
+  color: #c7d2fe !important;
+}
+
+.dark .text-blue-600 {
+  color: var(--color-brand-400, #60a5fa) !important;
+}
+.dark .text-purple-600 {
+  color: var(--color-accent-400, #c084fc) !important;
+}
+.dark .text-red-600 {
+  color: #f87171 !important;
+}
+.dark .text-emerald-600 {
+  color: #34d399 !important;
+}
+.dark .text-slate-600 {
+  color: #94a3b8 !important;
+}
+.dark .text-indigo-600 {
+  color: #818cf8 !important;
+}
+
+.dark .bg-blue-50\/50 {
+  background-color: rgba(59, 130, 246, 0.18) !important;
+}
+.dark .bg-purple-50\/50 {
+  background-color: rgba(168, 85, 247, 0.18) !important;
+}
+.dark .bg-red-50\/50 {
+  background-color: rgba(239, 68, 68, 0.18) !important;
+}
+.dark .bg-emerald-50\/50 {
+  background-color: rgba(16, 185, 129, 0.18) !important;
+}
+.dark .bg-slate-50\/50 {
+  background-color: rgba(148, 163, 184, 0.18) !important;
+}
+.dark .bg-indigo-50\/50 {
+  background-color: rgba(99, 102, 241, 0.18) !important;
+}
+
+/* ============================================================
+   Hologram / Shifting Rainbow Glow Styles
+   ============================================================ */
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.hologram-glow {
+  position: relative;
+  border-radius: 24px;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.hologram-glow::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 27px;
+  padding: 3px;
+  background: conic-gradient(from var(--angle), var(--color-brand-500), var(--color-accent-500), var(--color-brand-300), var(--color-accent-600), var(--color-brand-500));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+  animation: hologram-spin 10s linear infinite;
+}
+
+.hologram-glow::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 27px;
+  background: conic-gradient(from var(--angle), var(--color-brand-500), var(--color-accent-500), var(--color-brand-300), var(--color-accent-600), var(--color-brand-500));
+  z-index: -1;
+  filter: blur(16px);
+  opacity: 0.3; /* Subtle glow when idle */
+  pointer-events: none;
+  animation: hologram-spin 10s linear infinite;
+  transition: opacity 0.5s ease;
+}
+
+/* Animate and glow fast during active generation */
+.hologram-glow.generating::before {
+  animation: hologram-spin 2.5s linear infinite;
+}
+
+.hologram-glow.generating::after {
+  animation: hologram-spin 2.5s linear infinite;
+  opacity: 0.55;
+}
+
+.hologram-border-only {
+  position: relative;
+  border-radius: 24px;
+  background: #ffffff !important;
+}
+
+.hologram-border-only::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 27px;
+  padding: 3px;
+  background: conic-gradient(from var(--angle), var(--color-brand-500), var(--color-accent-500), var(--color-brand-300), var(--color-accent-600), var(--color-brand-500));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+  animation: hologram-spin 10s linear infinite;
+}
+
+@keyframes hologram-spin {
+  from {
+    --angle: 0deg;
+  }
+  to {
+    --angle: 360deg;
+  }
+}
+
+/* Hologram elements in dark mode */
+.dark .hologram-glow {
+  background: var(--color-surface) !important;
+}
+.dark .hologram-border-only {
+  background: var(--color-surface) !important;
+}
+
+
