@@ -13,7 +13,7 @@ const recipients = [
 
 export default function RecipientSelector({ value, onChange }) {
   return (
-    <div className="grid grid-cols-5 gap-2 w-full">
+    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 w-full">
       {recipients.map((r) => {
         const Icon = r.icon;
         const isActive = value === r.id;

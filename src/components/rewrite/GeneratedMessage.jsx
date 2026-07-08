@@ -183,9 +183,9 @@ export default memo(function GeneratedMessage({ data, loading }) {
       `}</style>
 
       {/* Side-by-Side Tone Comparison */}
-      <div className="flex items-stretch justify-between gap-4">
+      <div className="flex flex-col sm:flex-row items-stretch justify-between gap-4">
         {/* Original Tone Box */}
-        <div className="flex flex-1 items-center gap-4 rounded-xl border border-border bg-white px-5 py-4">
+        <div className="flex flex-1 items-center gap-3 sm:gap-4 rounded-xl border border-border bg-white px-4 sm:px-5 py-4">
           <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-red-50 text-red-500">
             <Frown className="h-5 w-5" />
           </div>
@@ -214,7 +214,7 @@ export default memo(function GeneratedMessage({ data, loading }) {
         </div>
 
         {/* New Tone Box */}
-        <div className="flex flex-1 items-center gap-4 rounded-xl border border-border bg-white px-5 py-4">
+        <div className="flex flex-1 items-center gap-3 sm:gap-4 rounded-xl border border-border bg-white px-4 sm:px-5 py-4">
           <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-green-50 text-green-500">
             <Smile className="h-5 w-5" />
           </div>

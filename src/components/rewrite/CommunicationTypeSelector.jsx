@@ -14,7 +14,7 @@ const types = [
 
 export default function CommunicationTypeSelector({ value, onChange }) {
   return (
-    <div className="grid grid-cols-6 gap-2 w-full">
+    <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 w-full">
       {types.map((t) => {
         const Icon = t.icon;
         const isActive = value === t.id;

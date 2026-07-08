@@ -241,7 +241,7 @@ export default function Navbar() {
                   <div className="fixed inset-0 z-40" onClick={() => setProfileOpen(false)} />
                   {/* Dropdown Card */}
                   <div
-                    className="absolute right-0 top-full mt-2 z-50 w-72 rounded-2xl border border-slate-200 bg-white shadow-xl overflow-hidden"
+                    className="absolute right-0 top-full mt-2 z-50 w-[90vw] sm:w-72 rounded-2xl border border-slate-200 bg-white shadow-xl overflow-hidden"
                     style={{ animation: "dropdownIn 0.18s cubic-bezier(0.16,1,0.3,1)" }}
                   >
                     {/* Profile Header */}
