@@ -220,13 +220,15 @@ export default function Navbar() {
       </div>
 
       {menuOpen && typeof window !== "undefined" && createPortal(
-        <div className="fixed inset-0 z-[100] md:hidden bg-white dark:bg-[#0F172A] flex flex-col">
+        <div className={`fixed inset-0 z-[100] md:hidden flex flex-col ${theme === "dark" ? "bg-[#0F172A]" : "bg-white"}`}
+          style={{ colorScheme: theme === "dark" ? "dark" : "light" }}
+        >
           {/* Header */}
-          <div className="flex items-center justify-between px-5 h-16 border-b border-border shrink-0">
-            <span className="text-base font-extrabold text-text-primary">Menu</span>
+          <div className={`flex items-center justify-between px-5 h-16 border-b shrink-0 ${theme === "dark" ? "border-[#1f2937] text-[#f9fafb]" : "border-[#e5e7eb]"}`}>
+            <span className={`text-base font-extrabold ${theme === "dark" ? "text-[#f9fafb]" : "text-[#111827]"}`}>Menu</span>
             <button
               onClick={() => setMenuOpen(false)}
-              className="p-2 rounded-lg text-text-secondary hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              className={`p-2 rounded-lg transition-colors cursor-pointer ${theme === "dark" ? "text-[#9ca3af] hover:bg-[#1f2937]" : "text-[#6b7280] hover:bg-slate-100"}`}
               aria-label="Close menu"
             >
               <X className="h-5 w-5" />
@@ -237,16 +239,16 @@ export default function Navbar() {
           <div className="flex-1 overflow-y-auto">
             {user ? (
               <>
-                <div className="px-5 pt-6 pb-4 border-b border-border">
+                <div className={`px-5 pt-6 pb-4 border-b ${theme === "dark" ? "border-[#1f2937]" : "border-[#e5e7eb]"}`}>
                   <div className="flex items-center gap-4">
                     <div className="h-14 w-14 flex items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-accent-600 text-lg font-extrabold text-white shadow-md select-none shrink-0">
                       {getInitials(profileName, user.email)}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-base font-extrabold text-text-primary truncate">
+                      <p className={`text-base font-extrabold truncate ${theme === "dark" ? "text-[#f9fafb]" : "text-[#111827]"}`}>
                         {profileName || user.email.split("@")[0]}
                       </p>
-                      <p className="text-sm text-text-secondary truncate mt-0.5">{user.email}</p>
+                      <p className={`text-sm truncate mt-0.5 ${theme === "dark" ? "text-[#d1d5db]" : "text-[#6b7280]"}`}>{user.email}</p>
                     </div>
                   </div>
                 </div>
@@ -255,9 +257,9 @@ export default function Navbar() {
                   <Link
                     href="/how-it-works"
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-semibold text-text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    className={`flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-semibold transition-colors ${theme === "dark" ? "text-[#f9fafb] hover:bg-[#1f2937]" : "text-[#111827] hover:bg-slate-100"}`}
                   >
-                    <ExternalLink className="h-5 w-5 shrink-0 text-text-muted" />
+                    <ExternalLink className={`h-5 w-5 shrink-0 ${theme === "dark" ? "text-[#9ca3af]" : "text-[#9ca3af]"}`} />
                     How It Works
                   </Link>
 
@@ -265,7 +267,7 @@ export default function Navbar() {
                     <Link
                       href="/admin/dashboard"
                       onClick={() => setMenuOpen(false)}
-                      className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-semibold text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950 transition-colors"
+                      className={`flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-semibold transition-colors ${theme === "dark" ? "text-[#93c5fd] hover:bg-[#111827]" : "text-brand-600 hover:bg-brand-50"}`}
                     >
                       <Shield className="h-5 w-5 shrink-0" />
                       Admin Panel
@@ -274,10 +276,10 @@ export default function Navbar() {
 
                   <button
                     onClick={toggleTheme}
-                    className="flex w-full items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-semibold text-text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                    className={`flex w-full items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${theme === "dark" ? "text-[#f9fafb] hover:bg-[#1f2937]" : "text-[#111827] hover:bg-slate-100"}`}
                   >
                     {theme === "light" ? (
-                      <Moon className="h-5 w-5 shrink-0 text-text-muted" />
+                      <Moon className="h-5 w-5 shrink-0 text-[#9ca3af]" />
                     ) : (
                       <Sun className="h-5 w-5 shrink-0 text-amber-500" />
                     )}
@@ -293,7 +295,7 @@ export default function Navbar() {
                 <div className="px-3 pb-6">
                   <button
                     onClick={handleLogout}
-                    className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-red-200 dark:border-red-900 px-4 py-3.5 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-colors cursor-pointer"
+                    className={`flex w-full items-center justify-center gap-2.5 rounded-xl border px-4 py-3.5 text-sm font-bold transition-colors cursor-pointer ${theme === "dark" ? "border-[#7f1d1d] text-[#f87171] hover:bg-[#1c0f0f]" : "border-red-200 text-red-500 hover:bg-red-50"}`}
                   >
                     <LogOut className="h-5 w-5 shrink-0" />
                     Sign Out
@@ -303,8 +305,8 @@ export default function Navbar() {
             ) : (
               <>
                 <div className="px-5 pt-8 pb-6 text-center">
-                  <p className="text-lg font-extrabold text-text-primary">Welcome</p>
-                  <p className="text-sm text-text-secondary mt-1">Sign in to start rewriting</p>
+                  <p className={`text-lg font-extrabold ${theme === "dark" ? "text-[#f9fafb]" : "text-[#111827]"}`}>Welcome</p>
+                  <p className={`text-sm mt-1 ${theme === "dark" ? "text-[#d1d5db]" : "text-[#6b7280]"}`}>Sign in to start rewriting</p>
                 </div>
                 <div className="px-5 space-y-3">
                   <Link
@@ -317,7 +319,7 @@ export default function Navbar() {
                   <Link
                     href="/signup"
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center justify-center rounded-xl border border-border px-4 py-3.5 text-sm font-bold text-text-primary hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                    className={`flex items-center justify-center rounded-xl border px-4 py-3.5 text-sm font-bold transition-colors ${theme === "dark" ? "border-[#1f2937] text-[#f9fafb] hover:bg-[#1f2937]" : "border-[#e5e7eb] text-[#111827] hover:bg-slate-50"}`}
                   >
                     Create Account
                   </Link>
