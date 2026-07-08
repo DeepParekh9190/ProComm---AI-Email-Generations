@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -218,120 +219,114 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Full-Screen Menu */}
-      {menuOpen && (
-        <div className="fixed inset-0 z-50 md:hidden bg-white dark:bg-[#0F172A]">
-          <div className="flex flex-col h-full">
-            {/* Header */}
-            <div className="flex items-center justify-between px-5 h-16 border-b border-border shrink-0">
-              <span className="text-base font-extrabold text-text-primary">Menu</span>
-              <button
-                onClick={() => setMenuOpen(false)}
-                className="p-2 rounded-lg text-text-secondary hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                aria-label="Close menu"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
+      {menuOpen && typeof window !== "undefined" && createPortal(
+        <div className="fixed inset-0 z-[100] md:hidden bg-white dark:bg-[#0F172A] flex flex-col">
+          {/* Header */}
+          <div className="flex items-center justify-between px-5 h-16 border-b border-border shrink-0">
+            <span className="text-base font-extrabold text-text-primary">Menu</span>
+            <button
+              onClick={() => setMenuOpen(false)}
+              className="p-2 rounded-lg text-text-secondary hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              aria-label="Close menu"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
 
-            {/* Content */}
-            <div className="flex-1 overflow-y-auto">
-              {user ? (
-                <>
-                  {/* Profile Section */}
-                  <div className="px-5 pt-6 pb-4 border-b border-border">
-                    <div className="flex items-center gap-4">
-                      <div className="h-14 w-14 flex items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-accent-600 text-lg font-extrabold text-white shadow-md select-none shrink-0">
-                        {getInitials(profileName, user.email)}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-base font-extrabold text-text-primary truncate">
-                          {profileName || user.email.split("@")[0]}
-                        </p>
-                        <p className="text-sm text-text-secondary truncate mt-0.5">{user.email}</p>
-                      </div>
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto">
+            {user ? (
+              <>
+                <div className="px-5 pt-6 pb-4 border-b border-border">
+                  <div className="flex items-center gap-4">
+                    <div className="h-14 w-14 flex items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-accent-600 text-lg font-extrabold text-white shadow-md select-none shrink-0">
+                      {getInitials(profileName, user.email)}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-base font-extrabold text-text-primary truncate">
+                        {profileName || user.email.split("@")[0]}
+                      </p>
+                      <p className="text-sm text-text-secondary truncate mt-0.5">{user.email}</p>
                     </div>
                   </div>
+                </div>
 
-                  {/* Menu Items */}
-                  <div className="px-3 py-3 space-y-0.5">
+                <div className="px-3 py-3 space-y-0.5">
+                  <Link
+                    href="/how-it-works"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-semibold text-text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  >
+                    <ExternalLink className="h-5 w-5 shrink-0 text-text-muted" />
+                    How It Works
+                  </Link>
+
+                  {isAdmin && (
                     <Link
-                      href="/how-it-works"
+                      href="/admin/dashboard"
                       onClick={() => setMenuOpen(false)}
-                      className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-semibold text-text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                      className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-semibold text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950 transition-colors"
                     >
-                      <ExternalLink className="h-5 w-5 shrink-0 text-text-muted" />
-                      How It Works
+                      <Shield className="h-5 w-5 shrink-0" />
+                      Admin Panel
                     </Link>
+                  )}
 
-                    {isAdmin && (
-                      <Link
-                        href="/admin/dashboard"
-                        onClick={() => setMenuOpen(false)}
-                        className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-semibold text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950 transition-colors"
-                      >
-                        <Shield className="h-5 w-5 shrink-0" />
-                        Admin Panel
-                      </Link>
+                  <button
+                    onClick={toggleTheme}
+                    className="flex w-full items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-semibold text-text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                  >
+                    {theme === "light" ? (
+                      <Moon className="h-5 w-5 shrink-0 text-text-muted" />
+                    ) : (
+                      <Sun className="h-5 w-5 shrink-0 text-amber-500" />
                     )}
+                    <span className="flex-1 text-left">{theme === "light" ? "Dark Mode" : "Light Mode"}</span>
+                    <div className={`relative h-5 w-9 rounded-full transition-colors ${theme === "dark" ? "bg-brand-600" : "bg-slate-300"}`}>
+                      <div className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${theme === "dark" ? "translate-x-4" : ""}`} />
+                    </div>
+                  </button>
+                </div>
 
-                    <button
-                      onClick={toggleTheme}
-                      className="flex w-full items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-semibold text-text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                    >
-                      {theme === "light" ? (
-                        <Moon className="h-5 w-5 shrink-0 text-text-muted" />
-                      ) : (
-                        <Sun className="h-5 w-5 shrink-0 text-amber-500" />
-                      )}
-                      <span className="flex-1 text-left">{theme === "light" ? "Dark Mode" : "Light Mode"}</span>
-                      <div className={`relative h-5 w-9 rounded-full transition-colors ${theme === "dark" ? "bg-brand-600" : "bg-slate-300"}`}>
-                        <div className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${theme === "dark" ? "translate-x-4" : ""}`} />
-                      </div>
-                    </button>
-                  </div>
+                <div className="flex-1" />
 
-                  {/* Spacer */}
-                  <div className="flex-1" />
-
-                  {/* Sign Out at Bottom */}
-                  <div className="px-3 pb-6">
-                    <button
-                      onClick={handleLogout}
-                      className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-red-200 dark:border-red-900 px-4 py-3.5 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-colors cursor-pointer"
-                    >
-                      <LogOut className="h-5 w-5 shrink-0" />
-                      Sign Out
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="px-5 pt-8 pb-6 text-center">
-                    <p className="text-lg font-extrabold text-text-primary">Welcome</p>
-                    <p className="text-sm text-text-secondary mt-1">Sign in to start rewriting</p>
-                  </div>
-                  <div className="px-5 space-y-3">
-                    <Link
-                      href="/login"
-                      onClick={() => setMenuOpen(false)}
-                      className="flex items-center justify-center rounded-xl bg-brand-600 px-4 py-3.5 text-sm font-bold text-white hover:bg-brand-700 transition-colors"
-                    >
-                      Sign In
-                    </Link>
-                    <Link
-                      href="/signup"
-                      onClick={() => setMenuOpen(false)}
-                      className="flex items-center justify-center rounded-xl border border-border px-4 py-3.5 text-sm font-bold text-text-primary hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-                    >
-                      Create Account
-                    </Link>
-                  </div>
-                </>
-              )}
-            </div>
+                <div className="px-3 pb-6">
+                  <button
+                    onClick={handleLogout}
+                    className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-red-200 dark:border-red-900 px-4 py-3.5 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-colors cursor-pointer"
+                  >
+                    <LogOut className="h-5 w-5 shrink-0" />
+                    Sign Out
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="px-5 pt-8 pb-6 text-center">
+                  <p className="text-lg font-extrabold text-text-primary">Welcome</p>
+                  <p className="text-sm text-text-secondary mt-1">Sign in to start rewriting</p>
+                </div>
+                <div className="px-5 space-y-3">
+                  <Link
+                    href="/login"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center justify-center rounded-xl bg-brand-600 px-4 py-3.5 text-sm font-bold text-white hover:bg-brand-700 transition-colors"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/signup"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center justify-center rounded-xl border border-border px-4 py-3.5 text-sm font-bold text-text-primary hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                  >
+                    Create Account
+                  </Link>
+                </div>
+              </>
+            )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </header>
   );
