@@ -4,10 +4,16 @@ import { createServerClient } from "@supabase/ssr";
 export async function GET(request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/";
+
+  // Read redirect path from cookie (set by signInWithGoogle)
+  const nextCookie = request.cookies.get("auth_redirect");
+  const next = nextCookie?.value ? decodeURIComponent(nextCookie.value) : "/";
 
   if (code) {
     let supabaseResponse = NextResponse.redirect(`${origin}${next}`);
+
+    // Clear the redirect cookie
+    supabaseResponse.cookies.set("auth_redirect", "", { maxAge: 0, path: "/" });
 
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -22,6 +28,7 @@ export async function GET(request) {
               request.cookies.set(name, value)
             );
             supabaseResponse = NextResponse.redirect(`${origin}${next}`);
+            supabaseResponse.cookies.set("auth_redirect", "", { maxAge: 0, path: "/" });
             cookiesToSet.forEach(({ name, value, options }) =>
               supabaseResponse.cookies.set(name, value, options)
             );
