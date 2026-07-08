@@ -220,14 +220,14 @@ export default function Navbar() {
 
       {/* Mobile Full-Screen Menu */}
       {menuOpen && (
-        <div className="fixed inset-0 z-50 md:hidden animate-fade-in">
-          <div className="absolute inset-0 bg-white">
+        <div className="fixed inset-0 z-50 md:hidden bg-white dark:bg-[#0F172A]">
+          <div className="flex flex-col h-full">
             {/* Header */}
-            <div className="flex items-center justify-between px-5 h-16 border-b border-border">
+            <div className="flex items-center justify-between px-5 h-16 border-b border-border shrink-0">
               <span className="text-base font-extrabold text-text-primary">Menu</span>
               <button
                 onClick={() => setMenuOpen(false)}
-                className="p-2 rounded-lg text-text-secondary hover:bg-slate-100 transition-colors cursor-pointer"
+                className="p-2 rounded-lg text-text-secondary hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                 aria-label="Close menu"
               >
                 <X className="h-5 w-5" />
@@ -235,7 +235,7 @@ export default function Navbar() {
             </div>
 
             {/* Content */}
-            <div className="flex flex-col h-[calc(100vh-4rem)] overflow-y-auto">
+            <div className="flex-1 overflow-y-auto">
               {user ? (
                 <>
                   {/* Profile Section */}
@@ -254,11 +254,11 @@ export default function Navbar() {
                   </div>
 
                   {/* Menu Items */}
-                  <div className="flex-1 px-3 py-3 space-y-0.5">
+                  <div className="px-3 py-3 space-y-0.5">
                     <Link
                       href="/how-it-works"
                       onClick={() => setMenuOpen(false)}
-                      className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-semibold text-text-primary hover:bg-slate-100 transition-colors"
+                      className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-semibold text-text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                     >
                       <ExternalLink className="h-5 w-5 shrink-0 text-text-muted" />
                       How It Works
@@ -268,17 +268,16 @@ export default function Navbar() {
                       <Link
                         href="/admin/dashboard"
                         onClick={() => setMenuOpen(false)}
-                        className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-semibold text-brand-600 hover:bg-brand-50 transition-colors"
+                        className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-semibold text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950 transition-colors"
                       >
                         <Shield className="h-5 w-5 shrink-0" />
                         Admin Panel
                       </Link>
                     )}
 
-                    {/* Theme Toggle */}
                     <button
                       onClick={toggleTheme}
-                      className="flex w-full items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-semibold text-text-primary hover:bg-slate-100 transition-colors cursor-pointer"
+                      className="flex w-full items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-semibold text-text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                     >
                       {theme === "light" ? (
                         <Moon className="h-5 w-5 shrink-0 text-text-muted" />
@@ -292,11 +291,14 @@ export default function Navbar() {
                     </button>
                   </div>
 
+                  {/* Spacer */}
+                  <div className="flex-1" />
+
                   {/* Sign Out at Bottom */}
                   <div className="px-3 pb-6">
                     <button
                       onClick={handleLogout}
-                      className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-red-200 px-4 py-3.5 text-sm font-bold text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
+                      className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-red-200 dark:border-red-900 px-4 py-3.5 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-colors cursor-pointer"
                     >
                       <LogOut className="h-5 w-5 shrink-0" />
                       Sign Out
@@ -320,7 +322,7 @@ export default function Navbar() {
                     <Link
                       href="/signup"
                       onClick={() => setMenuOpen(false)}
-                      className="flex items-center justify-center rounded-xl border border-border px-4 py-3.5 text-sm font-bold text-text-primary hover:bg-slate-50 transition-colors"
+                      className="flex items-center justify-center rounded-xl border border-border px-4 py-3.5 text-sm font-bold text-text-primary hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                     >
                       Create Account
                     </Link>
