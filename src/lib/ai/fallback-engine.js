@@ -48,12 +48,15 @@ export function detectOriginalTone(draft = "") {
 export function generateSmartFallback({ message, communicationType, recipient, tone, subject }) {
   const recipientName = recipient || "Recipient";
   const desiredTone = tone || "Professional";
-  const subjectLine = subject ? `Subject: ${subject}\n\n` : "";
+  const isSlack = communicationType === "slack";
+
+  // Only include subject line for email-like communications
+  const subjectLine = subject && !isSlack ? `Subject: ${subject}\n\n` : "";
 
   let greeting = "",
     closing = "";
-  if (communicationType === "slack") {
-    greeting = `Hey *${recipientName}*,\n\n`;
+  if (isSlack) {
+    greeting = `Hey ${recipientName},\n\n`;
     closing = "\n\nLet me know if this works!";
   } else if (communicationType === "email" || communicationType === "client") {
     greeting = `Dear ${recipientName},\n\n`;
@@ -63,7 +66,8 @@ export function generateSmartFallback({ message, communicationType, recipient, t
     closing = `\n\nRegards,\n[Your Name]`;
   }
 
-  const text = message ? message.trim() : "";
+  // Normalize whitespace in the user's message
+  const text = message ? message.trim().replace(/\s+/g, " ") : "";
 
   // Clean message from any existing greetings/closings
   let cleaned = text.replace(/^(hi|hello|dear|hey|to:)\s+[a-zA-Z0-9_\-\s]+,?/i, "").trim();
@@ -104,13 +108,15 @@ export function generateSmartFallback({ message, communicationType, recipient, t
   }
 
   // Pre-crafted high-quality rewrites for each theme/tone
+  // Each template ends the body with a period so spacing is consistent
+  const sep = " ";
   const templates = {
     delay_notification: {
-      professional: `I am writing to inform you of an adjustment to our project schedule. Unfortunately, we have encountered some unexpected challenges: ${bodyWithPeriod} We are working diligently to resolve these issues and will keep you updated on our progress. Thank you for your patience and understanding.`,
-      diplomatic: `I hope you are having a productive week. I wanted to touch base regarding our project timeline. We have hit a few unexpected roadblocks: ${bodyWithPeriod} We are doing everything we can to get back on track and appreciate your understanding.`,
-      firm: `Please note that we have encountered a delay in our delivery timeline: ${bodyWithPeriod} We are prioritizing this issue to minimize any impact on operations. We will provide a confirmed delivery schedule as soon as possible.`,
-      empathetic: `I hope you are doing well. I wanted to reach out and let you know that we have run into some delays on our end: ${bodyWithPeriod} I know you are relying on this delivery, and I sincerely apologize for any inconvenience this causes. Let me know if there is anything we can do to support you in the meantime.`,
-      neutral: `Regarding our project timeline: ${bodyWithPeriod} We have encountered a delay and are working to resolve it.`,
+      professional: `I am writing to inform you of an adjustment to our project schedule. Unfortunately, we have encountered some unexpected challenges:${sep}${bodyWithPeriod}${sep}We are working diligently to resolve these issues and will keep you updated on our progress. Thank you for your patience and understanding.`,
+      diplomatic: `I hope you are having a productive week. I wanted to touch base regarding our project timeline. We have hit a few unexpected roadblocks:${sep}${bodyWithPeriod}${sep}We are doing everything we can to get back on track and appreciate your understanding.`,
+      firm: `Please note that we have encountered a delay in our delivery timeline:${sep}${bodyWithPeriod}${sep}We are prioritizing this issue to minimize any impact on operations. We will provide a confirmed delivery schedule as soon as possible.`,
+      empathetic: `I hope you are doing well. I wanted to reach out and let you know that we have run into some delays on our end:${sep}${bodyWithPeriod}${sep}I know you are relying on this delivery, and I sincerely apologize for any inconvenience this causes. Let me know if there is anything we can do to support you in the meantime.`,
+      neutral: `Regarding our project timeline:${sep}${bodyWithPeriod}${sep}We have encountered a delay and are working to resolve it.`,
     },
     delay_request: {
       professional: `I am writing to follow up on the status of the project. We had scheduled completion by this date, but we have not yet received a progress report. Please provide a status update and a revised completion timeline at your earliest convenience so we can align our plans.`,
@@ -148,11 +154,11 @@ export function generateSmartFallback({ message, communicationType, recipient, t
       neutral: `We are reporting service outages with your platform. We require an immediate update on the status and a plan for resolution.`,
     },
     default: {
-      professional: `I am writing to communicate regarding this matter. I wanted to ensure we address the details clearly: ${bodyWithPeriod} Please let me know if you have any questions or require further clarification.`,
-      diplomatic: `I hope you are having a productive week. I wanted to touch base regarding: ${bodyWithPeriod} I understand there are multiple aspects to consider here, and I look forward to working collaboratively with you to resolve this.`,
-      firm: `Please review the following important update: ${bodyWithPeriod} This requires your prompt attention. Please confirm your schedule for completion by today.`,
-      empathetic: `I hope you are doing well. I wanted to reach out regarding: ${bodyWithPeriod} I know there has been a lot of work put into this, and I appreciate your dedication. Let me know if there is anything I can do to assist or support you.`,
-      neutral: `Regarding the item: ${bodyWithPeriod} We should track this update and coordinate on our next steps.`,
+      professional: `I am writing to follow up regarding the recent update. To summarize the key details:${sep}${bodyWithPeriod}${sep}Please let me know if you have any questions or need further clarification.`,
+      diplomatic: `I hope you are having a productive week. I wanted to touch base regarding the following:${sep}${bodyWithPeriod}${sep}I understand there are multiple aspects to consider here, and I look forward to working with you to resolve this.`,
+      firm: `Please review the following important update:${sep}${bodyWithPeriod}${sep}This requires your prompt attention. Please confirm the timeline for completion at your earliest convenience.`,
+      empathetic: `I hope you are doing well. I wanted to reach out regarding the following:${sep}${bodyWithPeriod}${sep}I know there has been a lot of effort put into this, and I appreciate your dedication. Let me know if there is anything I can do to help.`,
+      neutral: `Regarding the item below:${sep}${bodyWithPeriod}${sep}We should track this update and coordinate on next steps.`,
     },
   };
 
