@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import RewriteForm from "@/components/rewrite/RewriteForm";
@@ -54,6 +54,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
   const [userName, setUserName] = useState("User");
+  const resultRef = useRef(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -98,6 +99,9 @@ export default function Dashboard() {
   const handleRewrite = async ({ message, communicationType, recipient, tone, subject }) => {
     setLoading(true);
     setResult(null);
+
+    // Scroll to the result section on mobile (single-column layout)
+    resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 
     const activeTone = tone || "Professional";
     const detectedTone = detectOriginalTone(message);
@@ -207,6 +211,7 @@ export default function Dashboard() {
           </div>
           <div className="space-y-6 lg:col-start-2 lg:col-end-3 flex flex-col h-full">
             <div
+              ref={resultRef}
               className="p-5 flex flex-col h-full gap-4 rounded-xl border border-border bg-white shadow-soft"
             >
               <div className="mb-4 flex items-center justify-between">
