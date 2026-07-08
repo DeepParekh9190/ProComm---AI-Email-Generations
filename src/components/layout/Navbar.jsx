@@ -218,118 +218,118 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Hamburger Menu */}
+      {/* Mobile Full-Screen Menu */}
       {menuOpen && (
-        <>
-          <div className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm md:hidden" onClick={() => setMenuOpen(false)} />
-          <div className="absolute right-0 left-0 top-full z-50 mx-2 mb-2 rounded-2xl border border-slate-200 bg-white shadow-xl overflow-hidden md:hidden">
-            {user ? (
-              <>
-                {/* Profile Header */}
-                <div className="bg-gradient-to-br from-brand-50 to-accent-50/30 px-5 pt-5 pb-4 border-b border-slate-100">
-                  <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 flex items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-accent-600 text-base font-extrabold text-white shadow-md select-none shrink-0">
-                      {getInitials(profileName, user.email)}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-extrabold text-text-primary truncate leading-tight">
-                        {profileName || user.email.split("@")[0]}
-                      </p>
-                      <p className="text-[11px] text-text-secondary truncate leading-tight mt-0.5">{user.email}</p>
+        <div className="fixed inset-0 z-50 md:hidden animate-fade-in">
+          <div className="absolute inset-0 bg-white">
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 h-16 border-b border-border">
+              <span className="text-base font-extrabold text-text-primary">Menu</span>
+              <button
+                onClick={() => setMenuOpen(false)}
+                className="p-2 rounded-lg text-text-secondary hover:bg-slate-100 transition-colors cursor-pointer"
+                aria-label="Close menu"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="flex flex-col h-[calc(100vh-4rem)] overflow-y-auto">
+              {user ? (
+                <>
+                  {/* Profile Section */}
+                  <div className="px-5 pt-6 pb-4 border-b border-border">
+                    <div className="flex items-center gap-4">
+                      <div className="h-14 w-14 flex items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-accent-600 text-lg font-extrabold text-white shadow-md select-none shrink-0">
+                        {getInitials(profileName, user.email)}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-base font-extrabold text-text-primary truncate">
+                          {profileName || user.email.split("@")[0]}
+                        </p>
+                        <p className="text-sm text-text-secondary truncate mt-0.5">{user.email}</p>
+                      </div>
                     </div>
                   </div>
-                  <div className="mt-3">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-brand-100 px-3 py-0.5 text-[10px] font-bold text-brand-700">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-2.5 w-2.5"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                      >
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                      </svg>
-                      Unlimited Free Account
-                    </span>
-                  </div>
-                </div>
 
-                {/* Menu Items */}
-                <div className="py-1.5">
-                  {/* Theme Toggle */}
-                  <button
-                    onClick={() => { toggleTheme(); setMenuOpen(false); }}
-                    className="flex w-full items-center gap-3 px-4 py-3 text-sm font-semibold text-text-primary hover:bg-slate-50 transition-colors cursor-pointer"
-                  >
-                    {theme === "light" ? (
-                      <Moon className="h-5 w-5 shrink-0 text-slate-500" />
-                    ) : (
-                      <Sun className="h-5 w-5 shrink-0 text-amber-500" />
-                    )}
-                    <span className="flex-1 text-left">{theme === "light" ? "Dark Mode" : "Light Mode"}</span>
-                    <div className={`relative h-5 w-9 rounded-full transition-colors ${theme === "dark" ? "bg-brand-600" : "bg-slate-300"}`}>
-                      <div className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${theme === "dark" ? "translate-x-4" : ""}`} />
-                    </div>
-                  </button>
-
-                  <div className="mx-3 my-1 border-t border-slate-100" />
-
-                  <Link
-                    href="/how-it-works"
-                    onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-text-primary hover:bg-slate-50 transition-colors"
-                  >
-                    <ExternalLink className="h-5 w-5 shrink-0 text-text-muted" />
-                    How It Works
-                  </Link>
-
-                  {isAdmin && (
+                  {/* Menu Items */}
+                  <div className="flex-1 px-3 py-3 space-y-0.5">
                     <Link
-                      href="/admin/dashboard"
+                      href="/how-it-works"
                       onClick={() => setMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-brand-600 hover:bg-brand-50 transition-colors"
+                      className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-semibold text-text-primary hover:bg-slate-100 transition-colors"
                     >
-                      <Shield className="h-5 w-5 shrink-0" />
-                      Admin Panel
+                      <ExternalLink className="h-5 w-5 shrink-0 text-text-muted" />
+                      How It Works
                     </Link>
-                  )}
 
-                  <div className="mx-3 my-1 border-t border-slate-100" />
+                    {isAdmin && (
+                      <Link
+                        href="/admin/dashboard"
+                        onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-semibold text-brand-600 hover:bg-brand-50 transition-colors"
+                      >
+                        <Shield className="h-5 w-5 shrink-0" />
+                        Admin Panel
+                      </Link>
+                    )}
 
-                  <button
-                    onClick={handleLogout}
-                    className="flex w-full items-center gap-3 px-4 py-3 text-sm font-semibold text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
-                  >
-                    <LogOut className="h-5 w-5 shrink-0" />
-                    Sign out
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="px-5 pt-5 pb-3">
-                  <p className="text-sm font-extrabold text-text-primary">Welcome</p>
-                  <p className="text-[11px] text-text-secondary mt-0.5">Sign in to get started</p>
-                </div>
-                <div className="py-1.5">
-                  <Link
-                    href="/login"
-                    onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-text-primary hover:bg-slate-50 transition-colors"
-                  >
-                    Sign in
-                  </Link>
-                  <Link
-                    href="/signup"
-                    onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-brand-600 hover:bg-brand-50 transition-colors"
-                  >
-                    Get Started
-                  </Link>
-                </div>
-              </>
-            )}
+                    {/* Theme Toggle */}
+                    <button
+                      onClick={toggleTheme}
+                      className="flex w-full items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-semibold text-text-primary hover:bg-slate-100 transition-colors cursor-pointer"
+                    >
+                      {theme === "light" ? (
+                        <Moon className="h-5 w-5 shrink-0 text-text-muted" />
+                      ) : (
+                        <Sun className="h-5 w-5 shrink-0 text-amber-500" />
+                      )}
+                      <span className="flex-1 text-left">{theme === "light" ? "Dark Mode" : "Light Mode"}</span>
+                      <div className={`relative h-5 w-9 rounded-full transition-colors ${theme === "dark" ? "bg-brand-600" : "bg-slate-300"}`}>
+                        <div className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${theme === "dark" ? "translate-x-4" : ""}`} />
+                      </div>
+                    </button>
+                  </div>
+
+                  {/* Sign Out at Bottom */}
+                  <div className="px-3 pb-6">
+                    <button
+                      onClick={handleLogout}
+                      className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-red-200 px-4 py-3.5 text-sm font-bold text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
+                    >
+                      <LogOut className="h-5 w-5 shrink-0" />
+                      Sign Out
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="px-5 pt-8 pb-6 text-center">
+                    <p className="text-lg font-extrabold text-text-primary">Welcome</p>
+                    <p className="text-sm text-text-secondary mt-1">Sign in to start rewriting</p>
+                  </div>
+                  <div className="px-5 space-y-3">
+                    <Link
+                      href="/login"
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center justify-center rounded-xl bg-brand-600 px-4 py-3.5 text-sm font-bold text-white hover:bg-brand-700 transition-colors"
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      href="/signup"
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center justify-center rounded-xl border border-border px-4 py-3.5 text-sm font-bold text-text-primary hover:bg-slate-50 transition-colors"
+                    >
+                      Create Account
+                    </Link>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
-        </>
+        </div>
       )}
     </header>
   );
