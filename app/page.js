@@ -95,6 +95,18 @@ export default function Dashboard() {
       }
 
       setChecking(false);
+
+      // Fix: mobile browser's "Desktop site" mode may have been auto-enabled
+      // during the OAuth redirect chain. Re-force the viewport meta tag.
+      if (window.screen.width < 768) {
+        const meta = document.querySelector('meta[name="viewport"]');
+        if (meta) {
+          const content = meta.getAttribute('content');
+          if (content && !content.includes('device-width')) {
+            meta.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1');
+          }
+        }
+      }
     };
     checkAuth();
   }, [router]);
