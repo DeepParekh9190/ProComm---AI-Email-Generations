@@ -58,6 +58,17 @@ export default function Dashboard() {
   const router = useRouter();
 
   useEffect(() => {
+    if (loading && resultRef.current) {
+      const navbarHeight = 80;
+      const rect = resultRef.current.getBoundingClientRect();
+      window.scrollTo({
+        top: rect.top + window.scrollY - navbarHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [loading]);
+
+  useEffect(() => {
     const checkAuth = async () => {
       const supabase = await createClient();
       const {
@@ -99,9 +110,6 @@ export default function Dashboard() {
   const handleRewrite = async ({ message, communicationType, recipient, tone, subject }) => {
     setLoading(true);
     setResult(null);
-
-    // Scroll to the result section, accounting for sticky navbar height
-    resultRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
 
     const activeTone = tone || "Professional";
     const detectedTone = detectOriginalTone(message);
