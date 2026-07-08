@@ -100,8 +100,8 @@ export default function Dashboard() {
     setLoading(true);
     setResult(null);
 
-    // Scroll to the result section on mobile (single-column layout)
-    resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    // Scroll to the result section, accounting for sticky navbar height
+    resultRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
 
     const activeTone = tone || "Professional";
     const detectedTone = detectOriginalTone(message);
