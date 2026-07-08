@@ -207,10 +207,7 @@ export default function Dashboard() {
           </div>
           <div className="space-y-6 lg:col-start-2 lg:col-end-3 flex flex-col h-full">
             <div
-              className={cn(
-                "p-5 flex flex-col h-full gap-4 hologram-glow",
-                (loading || result?.streaming) && "generating"
-              )}
+              className="p-5 flex flex-col h-full gap-4 rounded-xl border border-border bg-white shadow-soft"
             >
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-sm font-semibold text-text-primary">
