@@ -14,3 +14,7 @@ export async function createClient() {
   _createClient = createBrowserClient(url, key);
   return _createClient;
 }
+
+export function clearClient() {
+  _createClient = null;
+}
