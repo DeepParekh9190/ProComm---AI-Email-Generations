@@ -1,17 +1,19 @@
-"use client";
+ "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { LogOut, Menu, X, Shield, Sun, Moon, ExternalLink } from "lucide-react";
+import { LogOut, Menu, X, Shield, Sun, Moon, ExternalLink, ChevronDown } from "lucide-react";
 import Logo from "./Logo";
 export default function Navbar() {
   const [user, setUser] = useState(null);
   const [profileName, setProfileName] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const router = useRouter();
   const [theme, setTheme] = useState("light");
 
@@ -25,6 +27,17 @@ export default function Navbar() {
       document.documentElement.classList.remove("dark");
     }
   }, []);
+
+  useEffect(() => {
+    if (!dropdownOpen) return;
+    const handleClick = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [dropdownOpen]);
 
   const toggleTheme = () => {
     const nextTheme = theme === "light" ? "dark" : "light";
@@ -124,6 +137,7 @@ export default function Navbar() {
     await supabase.auth.signOut();
     setUser(null);
     setMenuOpen(false);
+    setDropdownOpen(false);
     router.refresh();
     router.push("/login");
   };
@@ -166,30 +180,47 @@ export default function Navbar() {
             )}
           </button>
 
-          {/* Desktop: User Button */}
+          {/* Desktop: User Dropdown */}
           {user ? (
-            <div className="hidden md:flex items-center gap-3">
-              <Link
-                href="/how-it-works"
-                className="text-sm font-semibold text-text-secondary hover:text-brand-600 transition-colors"
-              >
-                How It Works
-              </Link>
-              {isAdmin && (
-                <Link
-                  href="/admin/dashboard"
-                  className="text-sm font-semibold text-brand-600 hover:text-brand-700 transition-colors"
-                >
-                  Admin
-                </Link>
-              )}
+            <div className="hidden md:flex items-center gap-3 relative" ref={dropdownRef}>
               <button
-                onClick={handleLogout}
-                className="flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-sm font-semibold text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="flex items-center gap-2 rounded-lg border border-border bg-white px-3 py-1.5 text-sm font-semibold text-text-primary hover:bg-slate-50 transition-colors cursor-pointer"
               >
-                <LogOut className="h-3.5 w-3.5" />
-                Sign out
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-600 text-[10px] font-bold text-white">
+                  {getInitials(profileName, user.email)}
+                </span>
+                <span className="max-w-[120px] truncate">{profileName || user.email.split("@")[0]}</span>
+                <ChevronDown className={`h-3.5 w-3.5 text-text-secondary transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
               </button>
+
+              {dropdownOpen && (
+                <div className="absolute right-0 top-full mt-2 w-56 rounded-xl border border-border bg-white shadow-lg py-2 z-50">
+                  <div className="px-4 py-2.5 border-b border-border">
+                    <p className="text-sm font-bold text-text-primary truncate">{profileName || user.email.split("@")[0]}</p>
+                    <p className="text-xs text-text-secondary truncate">{user.email}</p>
+                  </div>
+                  {isAdmin && (
+                    <Link
+                      href="/admin/dashboard"
+                      onClick={() => setDropdownOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-brand-600 hover:bg-brand-50 transition-colors"
+                    >
+                      <Shield className="h-4 w-4" />
+                      Admin Panel
+                    </Link>
+                  )}
+                  <div className="border-t border-border mt-1 pt-1">
+                    <button
+                      onClick={handleLogout}
+                      className="flex w-full items-center gap-3 px-4 py-2.5 text-sm font-semibold text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Sign Out
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="hidden sm:flex items-center gap-3">
