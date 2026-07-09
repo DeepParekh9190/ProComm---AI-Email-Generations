@@ -31,7 +31,7 @@ if (!supabaseUrl || !supabaseServiceKey) {
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 const FREE_MODELS = [
-  { name: 'GPT-4o Mini (Recommended)', model_id: 'openai/gpt-4o-mini', sort_order: 1 },
+  { name: 'GPT-4o (Recommended)', model_id: 'openai/gpt-4o', sort_order: 1 },
   { name: 'Auto-Select Free', model_id: 'openrouter/free', sort_order: 2 },
   { name: 'Gemini 2.0 Flash (Free)', model_id: 'google/gemini-2.0-flash-exp:free', sort_order: 3 },
   { name: 'Gemini 2.0 Flash Thinking (Free)', model_id: 'google/gemini-2.0-flash-thinking-exp:free', sort_order: 4 },
@@ -59,7 +59,7 @@ async function run() {
         name: model.name,
         model_id: model.model_id,
         is_active: true,
-        is_default: model.model_id === 'openai/gpt-4o-mini', // Set GPT-4o-mini as default (reliable, cheap)
+        is_default: model.model_id === 'openai/gpt-4o', // Set GPT-4o as default (reliable, high quality)
         sort_order: model.sort_order
       }, {
         onConflict: 'model_id'
@@ -87,7 +87,7 @@ async function run() {
             name: model.name,
             model_id: model.model_id,
             is_active: true,
-            is_default: model.model_id === 'openai/gpt-4o-mini',
+            is_default: model.model_id === 'openai/gpt-4o',
             sort_order: model.sort_order
           });
       }
