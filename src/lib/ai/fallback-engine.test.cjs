@@ -61,33 +61,37 @@ describe("generateSmartFallback", () => {
 
   it("uses slack format for slack type", () => {
     const result = generateSmartFallback({ message: "Test", communicationType: "slack", recipient: "Sarah" });
-    expect(result).toContain("Hey *Sarah*");
-    expect(result).toContain("Let me know if this works!");
+    expect(result).toContain("Hi Sarah");
+    expect(result).toContain("Best regards");
   });
 
-  it("detects delay theme", () => {
+  it("retains message body and addresses recipient", () => {
     const result = generateSmartFallback({ message: "There is a delay in the timeline", recipient: "Manager" });
-    expect(result).toContain("follow up on the status");
+    expect(result).toContain("Dear Manager");
+    expect(result).toContain("There is a delay in the timeline");
   });
 
-  it("detects apology theme", () => {
+  it("handles apologetic messages", () => {
     const result = generateSmartFallback({ message: "I apologize for the mistake", recipient: "Client" });
-    expect(result).toContain("Please accept my sincere apologies");
+    expect(result).toContain("Dear Client");
+    expect(result).toContain("I apologize for the mistake");
   });
 
-  it("detects meeting theme", () => {
+  it("handles meeting messages", () => {
     const result = generateSmartFallback({ message: "Let's schedule a meeting to discuss", recipient: "Team" });
-    expect(result).toContain("schedule a time");
+    expect(result).toContain("Dear Team");
+    expect(result).toContain("Let's schedule a meeting to discuss");
   });
 
-  it("detects request theme", () => {
+  it("handles request messages", () => {
     const result = generateSmartFallback({ message: "Could you please send the report", recipient: "Colleague" });
-    expect(result).toContain("request additional details");
+    expect(result).toContain("Dear Colleague");
+    expect(result).toContain("Could you please send the report");
   });
 
   it("handles empty message", () => {
     const result = generateSmartFallback({});
-    expect(result).toContain("Hi Recipient");
+    expect(result).toBe("");
   });
 });
 

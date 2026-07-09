@@ -118,9 +118,6 @@ export async function generateRewrite({ message, communicationType, recipient, t
 
   try {
     let activeModel = model || MODEL;
-    if (activeModel === "openrouter/free") {
-      activeModel = "meta-llama/llama-3.3-70b-instruct:free";
-    }
     const response = await fetch(API_URL, {
       method: "POST",
       headers: {
@@ -170,7 +167,8 @@ export async function generateRewrite({ message, communicationType, recipient, t
             ? parsed.alternatives
             : generateAlternatives({ message, communicationType, recipient, currentTone: activeTone }),
         promptTokens,
-        completionTokens
+        completionTokens,
+        isFallback: !parsed.rewrittenMessage
       };
     }
 
@@ -206,9 +204,6 @@ export async function streamRewrite({ message, communicationType, recipient, ton
     template: settings?.systemPromptTemplate
   });
   let activeModel = model || MODEL;
-  if (activeModel === "openrouter/free") {
-    activeModel = "meta-llama/llama-3.3-70b-instruct:free";
-  }
 
   let response;
   try {
@@ -356,6 +351,7 @@ function getDemoResponse({ message, communicationType, recipient, tone, subject 
     improvements: getImprovements(message, orig, activeTone),
     alternatives: generateAlternatives({ message, communicationType, recipient, currentTone: activeTone }),
     promptTokens: 0,
-    completionTokens: 0
+    completionTokens: 0,
+    isFallback: true
   };
 }

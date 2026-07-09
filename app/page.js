@@ -132,6 +132,7 @@ export default function Dashboard() {
       newTone: activeTone,
       improvements: getImprovements(message, detectedTone, activeTone),
       alternatives: generateAlternatives({ message, communicationType, recipient, currentTone: activeTone }),
+      isFallback: true,
     });
 
     let accumulated = "";
@@ -182,6 +183,7 @@ export default function Dashboard() {
                 alternatives:
                   event.data.alternatives ||
                   generateAlternatives({ message, communicationType, recipient, currentTone: activeTone }),
+                isFallback: event.data.isFallback || false,
               });
               window.dispatchEvent(new Event("usage-updated"));
             } else if (event.type === "fallback" && event.data) {
@@ -238,10 +240,26 @@ export default function Dashboard() {
                 <h2 className="text-sm font-semibold text-text-primary">
                   2. Rewritten Version ({result?.newTone || "Professional"})
                 </h2>
-                <span className="rounded bg-green-50 px-2 py-0.5 text-xs font-semibold text-green-600 border border-green-100">
-                  AI Generated
-                </span>
+                {result?.isFallback ? (
+                  <span className="rounded bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-600 border border-amber-100 animate-pulse">
+                    Offline Fallback Used
+                  </span>
+                ) : (
+                  <span className="rounded bg-green-50 px-2 py-0.5 text-xs font-semibold text-green-600 border border-green-100">
+                    AI Generated
+                  </span>
+                )}
               </div>
+              {result?.isFallback && (
+                <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-xs text-amber-800 flex flex-col gap-1">
+                  <span className="font-bold flex items-center gap-1">
+                    ⚠️ API Rate Limit / Connection Warning
+                  </span>
+                  <span>
+                    The AI Rewrite service is currently rate-limited or busy upstream. ProComm has automatically processed your draft using its local, offline heuristic engine to preserve your workflow.
+                  </span>
+                </div>
+              )}
               <GeneratedMessage data={result} loading={loading} />
             </div>
             {result && !result.streaming && !loading && <ImprovementsCard improvements={result.improvements} />}
