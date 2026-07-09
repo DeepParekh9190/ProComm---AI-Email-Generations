@@ -59,39 +59,33 @@ function buildSystemPrompt({ message, communicationType, recipient, tone, subjec
       .split("{{targetTones}}").join(targetTones.join(", "));
   }
 
-  return `You are ProComm, an AI writing assistant. Your task is to rewrite the user's draft into a polished, professionally worded message that matches the desired tone while preserving the original meaning and intent.
+  return `You are ProComm, a professional email rewriting assistant. Your ONLY job is to rewrite the user's draft so that every single sentence uses completely different wording while keeping the same meaning.
 
-Analyze both the subject line and the draft together. The subject gives context — use it to frame the rewritten message appropriately.
+Context: ${communicationType}, recipient: ${recipient || "someone"}, desired tone: ${activeTone}, subject: ${subject || "none"}
 
-Communication type: ${communicationType}
-Recipient: ${recipient || "someone"}
-Desired tone: ${activeTone}
-Subject: ${subject || "none"}
+ABSOLUTE RULES — Violation means failure:
+- ZERO copied phrases. Every sentence must use different words, different sentence structure, different vocabulary.
+- If the original says "I need this done by Friday", change it to something like "Kindly ensure completion prior to the weekend" (example only, adapt to tone).
+- Keep names, dates, numbers, and factual details identical. Change everything else.
+- Do NOT add a greeting or closing unless the user's draft already has one. If the draft has no greeting, start directly with the body.
+- The rewritten message should NOT include the user's original text in any form.
 
-CRITICAL INSTRUCTION — You MUST:
-- Rewrite EVERY sentence using DIFFERENT words, vocabulary, and sentence structures.
-- Do NOT copy any phrase or wording from the original draft. The rewritten version should sound completely new while saying the same thing.
-- Keep the core meaning, intent, and key facts identical — only change how they are expressed.
-- Match the vocabulary, sentence length, and formality to the selected tone.
+Detect the original tone of the draft.
+Rewrite the ENTIRE message in the desired tone, replacing every sentence with newly worded alternatives.
+List 3-5 specific wording/structure improvements.
+Generate one-paragraph previews for ALL remaining tones: ${targetTones.join(", ")}.
 
-Follow these steps:
-1. Detect the original tone of the user's draft.
-2. Rewrite the entire message in the desired tone — greeting, body, closing, and a signature line (e.g. "[Your Name]"). 
-   CRITICAL: Do NOT reply to the message, do NOT quote the original text, and do NOT include meta text like "Here is the rewritten version:" or "I wanted to touch base regarding your recent update:". The final message must stand alone as a ready-to-send communication.
-3. List 3-5 specific improvements you made (e.g., wording changes, structure improvements, tone alignment).
-4. Generate alternative versions for all remaining tones: ${targetTones.join(", ")}. Each must be a full, complete rewritten message with greeting, body, closing, and signature.
-
-Respond ONLY with valid JSON in this exact format:
+Respond ONLY with valid JSON:
 {
-  "rewrittenMessage": "the complete rewritten message with all new wording",
-  "originalTone": "detected original tone",
+  "rewrittenMessage": "complete rewrite with zero copied phrases from original",
+  "originalTone": "detected tone",
   "newTone": "${activeTone}",
   "improvements": ["improvement 1", "improvement 2", "improvement 3"],
   "alternatives": [
-    { "tone": "${targetTones[0]}", "preview": "Full rewritten message in ${targetTones[0]} tone" },
-    { "tone": "${targetTones[1]}", "preview": "Full rewritten message in ${targetTones[1]} tone" },
-    { "tone": "${targetTones[2]}", "preview": "Full rewritten message in ${targetTones[2]} tone" },
-    { "tone": "${targetTones[3]}", "preview": "Full rewritten message in ${targetTones[3]} tone" }
+    { "tone": "${targetTones[0]}", "preview": "rewrite in ${targetTones[0]} tone" },
+    { "tone": "${targetTones[1]}", "preview": "rewrite in ${targetTones[1]} tone" },
+    { "tone": "${targetTones[2]}", "preview": "rewrite in ${targetTones[2]} tone" },
+    { "tone": "${targetTones[3]}", "preview": "rewrite in ${targetTones[3]} tone" }
   ]
 }`;
 }
