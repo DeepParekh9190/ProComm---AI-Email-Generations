@@ -99,7 +99,7 @@ Respond ONLY with valid JSON in this exact format:
 export async function generateRewrite({ message, communicationType, recipient, tone, subject, model, template }) {
   const apiKey = process.env.OPENROUTER_API_KEY;
 
-  if (!apiKey || apiKey === "paste-your-api-key-here") {
+  if (!apiKey || apiKey === "paste-your-api-key-here" || apiKey === "sk-or-v1-your_openrouter_api_key_here") {
     console.warn("API WARNING: OPENROUTER_API_KEY is not set or is using the placeholder. Falling back to local template responses.");
     return getDemoResponse({ message, communicationType, recipient, tone, subject });
   }
@@ -183,13 +183,9 @@ export async function generateRewrite({ message, communicationType, recipient, t
 export async function streamRewrite({ message, communicationType, recipient, tone, subject, model }) {
   const apiKey = process.env.OPENROUTER_API_KEY;
 
-  if (!apiKey || apiKey === "paste-your-api-key-here") {
+  if (!apiKey || apiKey === "paste-your-api-key-here" || apiKey === "sk-or-v1-your_openrouter_api_key_here") {
     console.warn("API WARNING (Streaming): OPENROUTER_API_KEY is not set. Returning fallback stream.");
-    const fallback = getDemoResponse({ message, communicationType, recipient, tone, subject });
-    return {
-      type: "fallback",
-      ...fallback,
-    };
+    return createFallbackStream({ message, communicationType, recipient, tone, subject });
   }
 
   console.log(`API INFO (Streaming): Initiating stream request with key ending in "...${apiKey.slice(-4)}"`);
