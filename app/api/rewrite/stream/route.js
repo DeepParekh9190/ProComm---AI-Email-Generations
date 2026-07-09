@@ -11,7 +11,7 @@ async function resolveDefaultModel() {
     .eq("is_active", true)
     .eq("is_default", true)
     .single();
-  return data?.model_id || null;
+  return data?.model_id || "openai/gpt-4o-mini";
 }
 
 export async function POST(req) {
