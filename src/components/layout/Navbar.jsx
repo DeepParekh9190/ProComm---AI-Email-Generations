@@ -3,8 +3,8 @@
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { signOut } from "@/lib/auth";
 import { LogOut, Menu, X, Shield, Sun, Moon, ExternalLink, ChevronDown } from "lucide-react";
 import Logo from "./Logo";
 export default function Navbar() {
@@ -14,7 +14,6 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
-  const router = useRouter();
   const [theme, setTheme] = useState("light");
 
   useEffect(() => {
@@ -133,13 +132,7 @@ export default function Navbar() {
   }, []);
 
   const handleLogout = async () => {
-    const supabase = await createClient();
-    await supabase.auth.signOut();
-    setUser(null);
-    setMenuOpen(false);
-    setDropdownOpen(false);
-    router.refresh();
-    router.push("/login");
+    await signOut();
   };
 
   return (
