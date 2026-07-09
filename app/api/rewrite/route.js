@@ -77,7 +77,6 @@ export async function POST(req) {
 
     addTelemetryLog({
       userId: user.id,
-      userEmail: user.email,
       originalTone: result.originalTone,
       newTone: result.newTone,
       communicationType: sanitized.communicationType,
@@ -87,8 +86,8 @@ export async function POST(req) {
       promptTokens: result.promptTokens || 0,
       completionTokens: result.completionTokens || 0,
       isFallback: result.promptTokens === 0 && result.completionTokens === 0,
-      draftSnippet: sanitized.message ? sanitized.message.substring(0, 150) : "",
-      rewriteSnippet: result.rewrittenMessage ? result.rewrittenMessage.substring(0, 150) : ""
+      draftLength: sanitized.message ? sanitized.message.length : 0,
+      rewriteLength: result.rewrittenMessage ? result.rewrittenMessage.length : 0
     }).catch(err => console.error("Telemetry write failed:", err));
 
     return NextResponse.json({ data: result });

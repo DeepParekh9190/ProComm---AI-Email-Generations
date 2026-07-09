@@ -83,14 +83,11 @@ export default function TelemetryLogsPage() {
   const filteredLogs = logs.filter((log) => {
     const s = searchTerm.toLowerCase();
     return (
-      (log.userEmail || "").toLowerCase().includes(s) ||
       (log.model || "").toLowerCase().includes(s) ||
       (log.originalTone || "").toLowerCase().includes(s) ||
       (log.newTone || "").toLowerCase().includes(s) ||
       (log.communicationType || "").toLowerCase().includes(s) ||
-      (log.recipient || "").toLowerCase().includes(s) ||
-      (log.draftSnippet || "").toLowerCase().includes(s) ||
-      (log.rewriteSnippet || "").toLowerCase().includes(s)
+      (log.recipient || "").toLowerCase().includes(s)
     );
   }).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
@@ -306,7 +303,7 @@ export default function TelemetryLogsPage() {
                   {filteredLogs.map((log) => (
                     <tr key={log.id} className="hover:bg-gray-50/50 transition-colors">
                       <td className="py-3 pr-2">
-                        <div className="font-semibold text-gray-800">{log.userEmail || "Anonymous"}</div>
+                        <div className="font-semibold text-gray-800">{log.userId ? log.userId.substring(0, 8) + "..." : "User"}</div>
                         <div className="text-[9px] text-gray-400">
                           {new Date(log.timestamp).toLocaleString()}
                         </div>
@@ -358,9 +355,9 @@ export default function TelemetryLogsPage() {
             <div className="border-b border-gray-100 px-6 py-4 bg-gray-50/50 flex justify-between items-center">
               <div>
                 <h3 className="font-bold text-gray-800 text-sm">Rewrite Audit Comparison</h3>
-                <p className="text-[10px] text-gray-400 mt-0.5">
-                  User: {selectedLog.userEmail} · {new Date(selectedLog.timestamp).toLocaleString()}
-                </p>
+                  <p className="text-[10px] text-gray-400 mt-0.5">
+                    User: {selectedLog.userId ? selectedLog.userId.substring(0, 8) + "..." : "User"} · {new Date(selectedLog.timestamp).toLocaleString()}
+                  </p>
               </div>
               <button
                 onClick={() => setSelectedLog(null)}
@@ -399,7 +396,7 @@ export default function TelemetryLogsPage() {
                     <span className="rounded bg-red-100 px-1 py-0.5 text-[9px] uppercase">{selectedLog.originalTone || "Original"}</span>
                   </div>
                   <div className="p-4 flex-1 text-xs text-gray-700 leading-relaxed font-mono whitespace-pre-wrap select-all">
-                    {selectedLog.draftSnippet || "No input draft content logged"}
+                    {selectedLog.draftSnippet || selectedLog.draftLength ? `${selectedLog.draftLength} chars` : "No input draft content logged"}
                   </div>
                 </div>
 
@@ -410,7 +407,7 @@ export default function TelemetryLogsPage() {
                     <span className="rounded bg-blue-100 px-1 py-0.5 text-[9px] uppercase">{selectedLog.newTone}</span>
                   </div>
                   <div className="p-4 flex-1 text-xs text-gray-700 leading-relaxed font-mono whitespace-pre-wrap select-all">
-                    {selectedLog.rewriteSnippet || "No rewrite output content logged"}
+                    {selectedLog.rewriteSnippet || selectedLog.rewriteLength ? `${selectedLog.rewriteLength} chars` : "No rewrite output content logged"}
                   </div>
                 </div>
               </div>

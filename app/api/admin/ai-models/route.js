@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { sanitizeAdminInput } from "@/lib/validation";
 
 async function checkAdmin(request) {
   const supabase = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
@@ -37,7 +38,7 @@ export async function GET(request) {
     .select("*")
     .order("sort_order", { ascending: true });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: "Database error" }, { status: 500 });
 
   return NextResponse.json({ models });
 }
@@ -52,6 +53,10 @@ export async function POST(request) {
     return NextResponse.json({ error: "name and model_id are required" }, { status: 400 });
   }
 
+  if (body.model_id.length > 300) {
+    return NextResponse.json({ error: "model_id too long" }, { status: 400 });
+  }
+
   if (body.is_default) {
     await supabaseAdmin.from("ai_models").update({ is_default: false }).neq("id", "00000000-0000-0000-0000-000000000000");
   }
@@ -59,16 +64,16 @@ export async function POST(request) {
   const { data, error } = await supabaseAdmin
     .from("ai_models")
     .insert({
-      name: body.name,
-      model_id: body.model_id,
-      is_active: body.is_active !== undefined ? body.is_active : true,
-      is_default: body.is_default || false,
-      sort_order: body.sort_order || 0,
+      name: sanitizeAdminInput(body.name),
+      model_id: body.model_id.trim(),
+      is_active: body.is_active !== undefined ? Boolean(body.is_active) : true,
+      is_default: Boolean(body.is_default) || false,
+      sort_order: typeof body.sort_order === "number" ? body.sort_order : 0,
     })
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: "Database error" }, { status: 500 });
 
   return NextResponse.json({ model: data }, { status: 201 });
 }

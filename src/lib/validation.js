@@ -4,11 +4,17 @@ const ALLOWED_RECIPIENTS = ["Employee", "Manager", "Client", "Vendor", "Partner"
 
 const MAX_MESSAGE_LENGTH = 10000;
 const MAX_SUBJECT_LENGTH = 500;
+const MAX_NAME_LENGTH = 100;
+const MAX_STRING_LENGTH = 500;
 
 export function sanitizeString(input) {
   if (typeof input !== "string") return "";
   const trimmed = input.trim().slice(0, MAX_MESSAGE_LENGTH);
-  return trimmed.replace(/<[^>]*>/g, "").replace(/[\\<>]/g, "");
+  return trimmed
+    .replace(/<[^>]*>/g, "")
+    .replace(/[\\<>]/g, "")
+    .replace(/javascript\s*:/gi, "")
+    .replace(/on\w+\s*=/gi, "");
 }
 
 export function sanitizeSubject(input) {
@@ -17,7 +23,9 @@ export function sanitizeSubject(input) {
     .trim()
     .slice(0, MAX_SUBJECT_LENGTH)
     .replace(/<[^>]*>/g, "")
-    .replace(/[\\<>]/g, "");
+    .replace(/[\\<>]/g, "")
+    .replace(/javascript\s*:/gi, "")
+    .replace(/on\w+\s*=/gi, "");
 }
 
 export function validateRewriteInput(body) {
@@ -50,4 +58,38 @@ export function validateRewriteInput(body) {
   }
 
   return errors;
+}
+
+export function sanitizeAdminInput(value) {
+  if (typeof value !== "string") return "";
+  return value.trim().slice(0, MAX_STRING_LENGTH).replace(/[<>]/g, "");
+}
+
+export function validatePrice(value) {
+  if (typeof value !== "string") return false;
+  return /^\$\d+(\.\d{2})?$/.test(value);
+}
+
+export function validatePeriod(value) {
+  const allowed = ["/month", "/year", "/week", "/quarter"];
+  return allowed.includes(value);
+}
+
+export function validateFeatures(value) {
+  if (!Array.isArray(value)) return false;
+  return value.every(f => typeof f === "string" && f.length <= 200);
+}
+
+export function validateModelId(value) {
+  if (typeof value !== "string") return false;
+  return value.length > 0 && value.length <= 300;
+}
+
+export function validateName(value) {
+  if (typeof value !== "string") return false;
+  return value.trim().length > 0 && value.length <= MAX_NAME_LENGTH;
+}
+
+export function validateRole(value) {
+  return value === "user" || value === "admin";
 }

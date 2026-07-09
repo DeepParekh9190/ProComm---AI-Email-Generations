@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { generateRewrite } from "@/lib/ai/openrouter";
+import { sanitizeString, sanitizeSubject } from "@/lib/validation";
 
 async function checkAdmin(request) {
   const supabase = createServerClient(
@@ -51,13 +52,13 @@ export async function POST(request) {
     }
 
     const payload = {
-      message: body.message,
+      message: sanitizeString(body.message),
       communicationType: body.communicationType || "email",
-      recipient: body.recipient || "",
+      recipient: sanitizeString(body.recipient || ""),
       tone: body.tone || "Professional",
-      subject: body.subject || "",
+      subject: sanitizeSubject(body.subject || ""),
       model: body.model || "openrouter/free",
-      template: body.template // custom system prompt
+      template: body.template
     };
 
     const startTime = performance.now();

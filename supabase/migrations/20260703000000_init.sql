@@ -145,7 +145,11 @@ CREATE POLICY "Users can view own profile"
 DROP POLICY IF EXISTS "Users can update own profile" ON profiles;
 CREATE POLICY "Users can update own profile"
   ON profiles FOR UPDATE
-  USING (auth.uid() = id);
+  USING (auth.uid() = id)
+  WITH CHECK (
+    auth.uid() = id AND
+    role IS NOT DISTINCT FROM (SELECT role FROM profiles WHERE id = auth.uid())
+  );
 
 -- ============================================================
 -- RLS: subscriptions
@@ -254,49 +258,6 @@ CREATE POLICY "Admins can manage pricing_plans"
     auth.role() = 'service_role' OR
     (SELECT role FROM profiles WHERE id = auth.uid()) = 'admin'
   );
-
--- ============================================================
--- Atomic subscription usage increment & monthly reset function
--- ============================================================
-CREATE OR REPLACE FUNCTION increment_subscription_usage(p_user_id UUID)
-RETURNS INTEGER AS $$
-DECLARE
-  v_usage INTEGER;
-  v_reset_at TIMESTAMPTZ;
-BEGIN
-  -- Select current usage and reset time
-  SELECT monthly_usage, usage_reset_at 
-  INTO v_usage, v_reset_at
-  FROM subscriptions
-  WHERE user_id = p_user_id;
-  
-  -- If no subscription exists, return NULL
-  IF NOT FOUND THEN
-    RETURN NULL;
-  END IF;
-
-  -- Check if current time is past the reset time. If so, reset counter
-  IF now() >= v_reset_at THEN
-    v_usage := 1;
-    v_reset_at := date_trunc('month', now()) + interval '1 month';
-    
-    UPDATE subscriptions
-    SET monthly_usage = v_usage,
-        usage_reset_at = v_reset_at,
-        updated_at = now()
-    WHERE user_id = p_user_id;
-  ELSE
-    v_usage := v_usage + 1;
-    
-    UPDATE subscriptions
-    SET monthly_usage = v_usage,
-        updated_at = now()
-    WHERE user_id = p_user_id;
-  END IF;
-
-  RETURN v_usage;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- ============================================================
 -- Performance Indexes

@@ -92,7 +92,7 @@ export async function generateRewrite({ message, communicationType, recipient, t
     return getDemoResponse({ message, communicationType, recipient, tone, subject });
   }
 
-  console.log(`API INFO: Initiating rewrite request using OpenRouter key ending in "...${apiKey.slice(-6)}". Model: ${model || MODEL}`);
+  console.log(`API INFO: Initiating rewrite request using key ending in "...${apiKey.slice(-4)}". Model: ${model || MODEL}`);
 
   const settings = await getPromptSettings().catch(() => ({}));
   const systemPrompt = buildSystemPrompt({
@@ -182,7 +182,7 @@ export async function streamRewrite({ message, communicationType, recipient, ton
     };
   }
 
-  console.log(`API INFO (Streaming): Initiating stream request with key ending in "...${apiKey.slice(-6)}"`);
+  console.log(`API INFO (Streaming): Initiating stream request with key ending in "...${apiKey.slice(-4)}"`);
 
   const settings = await getPromptSettings().catch(() => ({}));
   const systemPrompt = buildSystemPrompt({

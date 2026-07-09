@@ -21,7 +21,8 @@ function LoginForm() {
     setGoogleLoading(true);
     setError("");
     try {
-      await signInWithGoogle(searchParams.get("redirect") || "/");
+      const redirect = searchParams.get("redirect") || "/";
+      await signInWithGoogle(redirect.startsWith("/") ? redirect : "/");
     } catch (err) {
       setError(err.message);
       setGoogleLoading(false);
@@ -53,6 +54,11 @@ function LoginForm() {
       .single();
 
     let redirectTo = searchParams.get("redirect") || "/";
+    if (redirectTo.startsWith("/")) {
+      redirectTo = redirectTo;
+    } else {
+      redirectTo = "/";
+    }
     if (profile?.role === "admin" && (redirectTo === "/" || redirectTo === "/admin")) {
       redirectTo = "/admin/dashboard";
     }

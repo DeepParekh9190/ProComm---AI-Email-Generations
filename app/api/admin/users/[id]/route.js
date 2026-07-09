@@ -41,7 +41,7 @@ export async function PATCH(request, { params }) {
     }
     const { error } = await supabaseAdmin.from("profiles").update({ role: body.role }).eq("id", id);
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) return NextResponse.json({ error: "Database error" }, { status: 500 });
   }
 
   if (body.subscription !== undefined) {
@@ -49,10 +49,10 @@ export async function PATCH(request, { params }) {
 
     if (existing) {
       const { error } = await supabaseAdmin.from("subscriptions").update(body.subscription).eq("user_id", id);
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      if (error) return NextResponse.json({ error: "Database error" }, { status: 500 });
     } else {
       const { error } = await supabaseAdmin.from("subscriptions").insert({ user_id: id, ...body.subscription });
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      if (error) return NextResponse.json({ error: "Database error" }, { status: 500 });
     }
   }
 
@@ -69,6 +69,6 @@ export async function DELETE(request, { params }) {
   await supabaseAdmin.from("profiles").delete().eq("id", id);
   const { error } = await supabaseAdmin.auth.admin.deleteUser(id);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: "Database error" }, { status: 500 });
   return NextResponse.json({ success: true });
 }

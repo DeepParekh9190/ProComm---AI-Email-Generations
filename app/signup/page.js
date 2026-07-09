@@ -69,6 +69,7 @@ function SignupForm() {
     }
 
     const redirectTo = searchParams.get("redirect") || "/";
+    if (!redirectTo.startsWith("/")) redirectTo = "/";
     // Use full page navigation so the fresh session cookie is sent to the server middleware.
     window.location.href = redirectTo;
   };
@@ -77,7 +78,8 @@ function SignupForm() {
     setGoogleLoading(true);
     setError("");
     try {
-      await signInWithGoogle(searchParams.get("redirect") || "/");
+      const redirect = searchParams.get("redirect") || "/";
+      await signInWithGoogle(redirect.startsWith("/") ? redirect : "/");
     } catch (err) {
       setError(err.message);
       setGoogleLoading(false);

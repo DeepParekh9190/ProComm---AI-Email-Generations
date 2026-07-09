@@ -17,7 +17,7 @@ export default function Error({ error, reset }) {
       </div>
       <h2 className="text-lg font-bold text-text-primary mb-2">Something went wrong</h2>
       <p className="text-sm text-text-secondary mb-6 max-w-md">
-        {error.message || "An unexpected error occurred. Please try again."}
+        An unexpected error occurred. Please try again.
       </p>
       <div className="flex items-center gap-3">
         <button

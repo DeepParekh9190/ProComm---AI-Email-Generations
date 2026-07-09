@@ -47,7 +47,7 @@ export async function GET(request) {
   dbQuery = dbQuery.order("created_at", { ascending: false }).range(offset, offset + limit - 1);
 
   const { data: profiles, count, error } = await dbQuery;
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: "Database error" }, { status: 500 });
 
   const userIds = profiles.map((p) => p.id);
   const { data: subscriptions } = await supabaseAdmin

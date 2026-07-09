@@ -38,13 +38,17 @@ export function rateLimitByUser({ userId, ip, interval = 60000, maxRequests = 30
 }
 
 // Periodic cleanup to prevent memory leaks
-if (typeof setInterval !== "undefined") {
-  setInterval(() => {
-    const now = Date.now();
-    for (const [key, entry] of rateMap) {
-      if (now - entry.start > 60000) {
-        rateMap.delete(key);
+try {
+  if (typeof setInterval !== "undefined") {
+    setInterval(() => {
+      const now = Date.now();
+      for (const [key, entry] of rateMap) {
+        if (now - entry.start > 60000) {
+          rateMap.delete(key);
+        }
       }
-    }
-  }, 60000);
+    }, 60000);
+  }
+} catch {
+  // Cleanup interval not available in edge/serverless
 }

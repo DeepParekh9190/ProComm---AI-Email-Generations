@@ -17,8 +17,6 @@ function generateSeedLogs() {
     "google/gemma-4-31b-it:free",
     "qwen/qwen3-coder:free"
   ];
-  const emails = ["testuser@test.com", "admin@procomm.ai", "officialdeepparekh919@gmail.com", "user1@example.com", "user2@example.com"];
-  
   const now = new Date();
   for (let i = 28; i >= 0; i--) {
     const timestamp = new Date(now.getTime() - i * 6 * 60 * 60 * 1000 - Math.random() * 3 * 60 * 60 * 1000);
@@ -31,7 +29,6 @@ function generateSeedLogs() {
       id: Math.random().toString(36).substring(2, 9),
       timestamp: timestamp.toISOString(),
       userId: "mock-uid-" + Math.floor(Math.random() * 5),
-      userEmail: emails[Math.floor(Math.random() * emails.length)],
       originalTone: origTones[Math.floor(Math.random() * origTones.length)],
       newTone: tones[Math.floor(Math.random() * tones.length)],
       communicationType: commTypes[Math.floor(Math.random() * commTypes.length)],
@@ -41,8 +38,8 @@ function generateSeedLogs() {
       promptTokens: pTokens,
       completionTokens: cTokens,
       isFallback: isFallback,
-      draftSnippet: "This is a quick draft note to say that we need to finish this soon ASAP.",
-      rewriteSnippet: "I am writing to kindly remind you that we should aim to complete this project at your earliest convenience."
+      draftLength: Math.floor(Math.random() * 200) + 50,
+      rewriteLength: Math.floor(Math.random() * 300) + 100
     });
   }
   return seed;

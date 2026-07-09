@@ -12,7 +12,8 @@ export async function signInWithGoogle(redirectTo) {
   }
 
   // Store redirect path in a cookie so the callback route can read it
-  document.cookie = `auth_redirect=${encodeURIComponent(redirectPath)}; path=/; max-age=300; SameSite=Lax`;
+  const secureFlag = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `auth_redirect=${encodeURIComponent(redirectPath)}; path=/; max-age=300; SameSite=Lax${secureFlag}`;
 
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",

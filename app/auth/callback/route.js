@@ -7,7 +7,9 @@ export async function GET(request) {
 
   // Read redirect path from cookie (set by signInWithGoogle)
   const nextCookie = request.cookies.get("auth_redirect");
-  const next = nextCookie?.value ? decodeURIComponent(nextCookie.value) : "/";
+  let next = nextCookie?.value ? decodeURIComponent(nextCookie.value) : "/";
+  // Only allow relative paths to prevent open redirect
+  if (!next.startsWith("/")) next = "/";
 
   if (code) {
     let supabaseResponse = NextResponse.redirect(`${origin}${next}`);
