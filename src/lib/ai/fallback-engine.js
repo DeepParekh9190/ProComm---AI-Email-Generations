@@ -45,128 +45,353 @@ export function detectOriginalTone(draft = "") {
   return "Unstructured / Informal";
 }
 
+function rewordMessage(text, desiredTone) {
+  if (!text) return "";
+
+  const tone = desiredTone.toLowerCase();
+
+  const rules = getToneRules(tone);
+
+  // Apply rules in order: multi-word phrases first
+  let result = text;
+  for (const { pattern, replacement } of rules) {
+    result = result.replace(pattern, replacement);
+  }
+
+  // Cleanup: fix grammar artifacts from partial matching
+  result = cleanupRewording(result);
+
+  return result.trim();
+}
+
+function cleanupRewording(text) {
+  return text
+    // Fix "continue to adding/doing/etc" → "continue to add/do/etc"
+    .replace(/\bcontinue to (\w+)ing\b/gi, (_, w) => "continue to " + w)
+    // Fix "noticed adding/doing/etc" → "noticed you are adding/doing/etc" (context dependent)
+    .replace(/\bnoticed (\w+)ing\b/gi, (_, w) => "noticed that you are " + w + "ing")
+    // Fix "noted that you continue to adding" → "noted that you continue to add"
+    .replace(/\bcontinue to (\w+)ing\b/gi, (_, w) => "continue to " + w)
+    // Remove leftover "to this" fragments when the first part was replaced
+    .replace(/\bto this\b/gi, "")
+    // Fix "to do this additional scope for free" → "to do this additional work for free"
+    // (general cleanup of doubled prepositions)
+    .replace(/\bto this in\b/gi, "in")
+    .replace(/\bto this for\b/gi, "for")
+    .replace(/\bto this on\b/gi, "on")
+    .replace(/\bto this with\b/gi, "with")
+    // Remove doubled spaces
+    .replace(/\s{2,}/g, " ")
+    // Capitalize first letter of sentences
+    .replace(/(?:^|\.\s+|\!\s+|\?\s+)([a-z])/g, (match) => match.toUpperCase())
+    // Fix lowercase "i" to "I"
+    .replace(/\bi\b/g, "I")
+    // Fix "i'll", "i'm", "i've", "i'd"
+    .replace(/\bi'll\b/gi, "I will")
+    .replace(/\bi'm\b/gi, "I am")
+    .replace(/\bi've\b/gi, "I have")
+    .replace(/\bi'd\b/gi, "I would");
+}
+
+function getToneRules(tone) {
+  const rules = {
+    professional: [
+      { pattern: /\bcan't\b/gi, replacement: "am unable to" },
+      { pattern: /\bwont\b|\bwon't\b/gi, replacement: "will not be able to" },
+      { pattern: /\byou need to\b/gi, replacement: "we kindly request that you" },
+      { pattern: /\byou must\b/gi, replacement: "it is important that you" },
+      { pattern: /\bi need\b/gi, replacement: "I would appreciate" },
+      { pattern: /\bsend me\b/gi, replacement: "please provide me with" },
+      { pattern: /\bgive me\b/gi, replacement: "I would like to receive" },
+      { pattern: /\bdone\b/gi, replacement: "completed" },
+      { pattern: /\bhelp\b/gi, replacement: "assist" },
+      { pattern: /\bfix\b/gi, replacement: "resolve" },
+      { pattern: /\buse\b/gi, replacement: "utilize" },
+      { pattern: /\bget back\b/gi, replacement: "follow up" },
+      { pattern: /\btell me\b/gi, replacement: "please advise" },
+      { pattern: /\bi think\b/gi, replacement: "it appears that" },
+      { pattern: /\bno\b/gi, replacement: "unfortunately not" },
+      { pattern: /\byeah\b|\byep\b/gi, replacement: "yes" },
+      { pattern: /\bnah\b|\bnope\b/gi, replacement: "no" },
+      { pattern: /\bthanks\b/gi, replacement: "thank you" },
+      { pattern: /\bwanna\b|\bwant to\b/gi, replacement: "would like to" },
+      { pattern: /\bgonna\b|\bgoing to\b/gi, replacement: "will" },
+      { pattern: /\bugent\b|\basap\b/gi, replacement: "at your earliest convenience" },
+      { pattern: /\bjust\b/gi, replacement: "" },
+      { pattern: /\bgotta\b/gi, replacement: "need to" },
+      { pattern: /\byou have to\b/gi, replacement: "it is necessary that you" },
+      { pattern: /\byou keep (\w+)ing\b/gi, replacement: "I have noticed that you continue to $1" },
+      { pattern: /\bi will not\b/gi, replacement: "I am unable to" },
+      { pattern: /\bwe did not agree to this\b/gi, replacement: "this was not part of our agreed scope" },
+      { pattern: /\bpay us\b/gi, replacement: "compensate us" },
+      { pattern: /\bextra work\b/gi, replacement: "additional work" },
+      { pattern: /\bif you want\b/gi, replacement: "should you wish to proceed with" },
+      { pattern: /\bnot fair\b/gi, replacement: "does not seem reasonable" },
+      { pattern: /\bwrong\b/gi, replacement: "incorrect" },
+      { pattern: /\bproblem\b/gi, replacement: "matter" },
+      { pattern: /\bstop\b/gi, replacement: "discontinue" },
+      { pattern: /\bstart\b/gi, replacement: "commence" },
+      { pattern: /\bcheck\b/gi, replacement: "review" },
+      { pattern: /\bsorry\b/gi, replacement: "I apologize" },
+      { pattern: /\bit's\b/gi, replacement: "it is" },
+      { pattern: /\bi'm\b/gi, replacement: "I am" },
+      { pattern: /\bi'll\b/gi, replacement: "I will" },
+      { pattern: /\bdon't\b/gi, replacement: "do not" },
+      { pattern: /\bdoesn't\b/gi, replacement: "does not" },
+      { pattern: /\bdidn't\b/gi, replacement: "did not" },
+      { pattern: /\bhaven't\b/gi, replacement: "have not" },
+      { pattern: /\bhasn't\b/gi, replacement: "has not" },
+      { pattern: /\bwouldn't\b/gi, replacement: "would not" },
+      { pattern: /\bcouldn't\b/gi, replacement: "could not" },
+      { pattern: /\bshouldn't\b/gi, replacement: "should not" },
+      { pattern: /\bit'll\b/gi, replacement: "it will" },
+      { pattern: /\bthat's\b/gi, replacement: "that is" },
+      { pattern: /\bthere's\b/gi, replacement: "there is" },
+      { pattern: /\bhere's\b/gi, replacement: "here is" },
+      { pattern: /\bwhat's\b/gi, replacement: "what is" },
+      { pattern: /\bwho's\b/gi, replacement: "who is" },
+      { pattern: /\btoday\b/gi, replacement: "at the earliest opportunity" },
+      { pattern: /\btomorrow\b/gi, replacement: "by end of business tomorrow" },
+      { pattern: /\bnow\b/gi, replacement: "promptly" },
+      { pattern: /\bwait\b/gi, replacement: "await" },
+      { pattern: /\bget\b/gi, replacement: "obtain" },
+      { pattern: /\bshow\b/gi, replacement: "demonstrate" },
+      { pattern: /\bmake sure\b/gi, replacement: "ensure" },
+      { pattern: /\blot of\b/gi, replacement: "significant" },
+      { pattern: /\ba lot\b/gi, replacement: "substantial" },
+      { pattern: /\bbig\b/gi, replacement: "significant" },
+      { pattern: /\bsmall\b/gi, replacement: "minor" },
+    ],
+    diplomatic: [
+      { pattern: /\byou're wrong\b/gi, replacement: "I see things differently" },
+      { pattern: /\bthat's incorrect\b/gi, replacement: "I believe there may be a misunderstanding" },
+      { pattern: /\bno\b/gi, replacement: "I would suggest considering an alternative approach" },
+      { pattern: /\bcan't\b/gi, replacement: "may not be able to" },
+      { pattern: /\bwont\b|\bwon't\b/gi, replacement: "might not" },
+      { pattern: /\byou need to\b/gi, replacement: "it might be helpful to" },
+      { pattern: /\byou must\b/gi, replacement: "perhaps we could" },
+      { pattern: /\bi need\b/gi, replacement: "it would be great if we could" },
+      { pattern: /\bsend me\b/gi, replacement: "would you mind sending" },
+      { pattern: /\bproblem\b/gi, replacement: "opportunity for improvement" },
+      { pattern: /\bfix\b/gi, replacement: "address" },
+      { pattern: /\berror\b/gi, replacement: "discrepancy" },
+      { pattern: /\bdidn't\b/gi, replacement: "was not able to" },
+      { pattern: /\byou didn't\b/gi, replacement: "it seems there was a" },
+      { pattern: /\bwrong\b/gi, replacement: "not quite aligned" },
+      { pattern: /\bthanks\b/gi, replacement: "I appreciate" },
+      { pattern: /\bi want\b/gi, replacement: "I was hoping" },
+      { pattern: /\bnot possible\b/gi, replacement: "that may be challenging" },
+      { pattern: /\bgotta\b/gi, replacement: "might need to" },
+      { pattern: /\byou have to\b/gi, replacement: "it would be beneficial to" },
+      { pattern: /\byou keep (\w+)ing\b/gi, replacement: "I have noticed that you are $1ing" },
+      { pattern: /\bi will not\b/gi, replacement: "I may not be in a position to" },
+      { pattern: /\bwe did not agree to this\b/gi, replacement: "I believe our understanding was different" },
+      { pattern: /\bpay us more\b/gi, replacement: "discuss appropriate compensation" },
+      { pattern: /\bextra work\b/gi, replacement: "additional scope" },
+      { pattern: /\bif you want\b/gi, replacement: "should you wish to proceed with" },
+      { pattern: /\bnot fair\b/gi, replacement: "might not be entirely equitable" },
+      { pattern: /\bagree to disagree\b/gi, replacement: "let us find common ground" },
+      { pattern: /\bi think\b/gi, replacement: "I am of the view that" },
+      { pattern: /\bdone\b/gi, replacement: "addressed" },
+      { pattern: /\bjust\b/gi, replacement: "" },
+      { pattern: /\basap\b|\bugent\b/gi, replacement: "when you have a moment" },
+      { pattern: /\bnow\b/gi, replacement: "in the near future" },
+      { pattern: /\bstop\b/gi, replacement: "pause" },
+      { pattern: /\bsorry\b/gi, replacement: "I regret" },
+      { pattern: /\bgive me\b/gi, replacement: "if you could share" },
+      { pattern: /\btell me\b/gi, replacement: "I would welcome your input on" },
+      { pattern: /\bcheck\b/gi, replacement: "review whenever convenient" },
+      { pattern: /\bi'm\b/gi, replacement: "I am" },
+      { pattern: /\bi'll\b/gi, replacement: "I will" },
+      { pattern: /\bit's\b/gi, replacement: "it is" },
+      { pattern: /\bthat's\b/gi, replacement: "that is" },
+      { pattern: /\bdon't\b/gi, replacement: "do not" },
+      { pattern: /\bdoesn't\b/gi, replacement: "does not" },
+      { pattern: /\bcan't\b/gi, replacement: "cannot" },
+      { pattern: /\bi'd\b/gi, replacement: "I would" },
+    ],
+    firm: [
+      { pattern: /\bi think\b/gi, replacement: "it is clear that" },
+      { pattern: /\bmaybe\b|\bmaybe\b/gi, replacement: "this needs to be" },
+      { pattern: /\bi would like\b/gi, replacement: "I expect" },
+      { pattern: /\bplease consider\b/gi, replacement: "this requires" },
+      { pattern: /\bif possible\b/gi, replacement: "effective immediately" },
+      { pattern: /\bcould you please\b/gi, replacement: "you are directed to" },
+      { pattern: /\bmay i\b/gi, replacement: "I will" },
+      { pattern: /\bperhaps\b/gi, replacement: "it is necessary that" },
+      { pattern: /\bmight be\b/gi, replacement: "will be" },
+      { pattern: /\bi suggest\b/gi, replacement: "I require" },
+      { pattern: /\bwe can\b/gi, replacement: "we will" },
+      { pattern: /\bhoping\b/gi, replacement: "expecting" },
+      { pattern: /\bgently remind\b/gi, replacement: "remind" },
+      { pattern: /\bjust following up\b/gi, replacement: "following up" },
+      { pattern: /\bjust\b/gi, replacement: "" },
+      { pattern: /\bgotta\b/gi, replacement: "must" },
+      { pattern: /\byou have to\b/gi, replacement: "you are required to" },
+      { pattern: /\byou keep (\w+)ing\b/gi, replacement: "it has been noted that you continue to $1" },
+      { pattern: /\bi will not\b/gi, replacement: "I cannot" },
+      { pattern: /\bwe did not agree to this\b/gi, replacement: "this was not authorized" },
+      { pattern: /\bpay us more\b/gi, replacement: "provide additional payment" },
+      { pattern: /\bextra work\b/gi, replacement: "unauthorized work" },
+      { pattern: /\bif you want\b/gi, replacement: "if you intend to proceed with" },
+      { pattern: /\bnot fair\b/gi, replacement: "unacceptable" },
+      { pattern: /\bwrong\b/gi, replacement: "incorrect and needs correction" },
+      { pattern: /\bproblem\b/gi, replacement: "issue that requires resolution" },
+      { pattern: /\bi need\b/gi, replacement: "I require" },
+      { pattern: /\bsend me\b/gi, replacement: "submit to me" },
+      { pattern: /\bgive me\b/gi, replacement: "provide me with" },
+      { pattern: /\bdone\b/gi, replacement: "completed without delay" },
+      { pattern: /\bfix\b/gi, replacement: "rectify" },
+      { pattern: /\bhelp\b/gi, replacement: "support" },
+      { pattern: /\bcheck\b/gi, replacement: "verify" },
+      { pattern: /\bstop\b/gi, replacement: "cease" },
+      { pattern: /\bwait\b/gi, replacement: "cannot wait" },
+      { pattern: /\bnow\b/gi, replacement: "immediately" },
+      { pattern: /\basap\b|\bugent\b/gi, replacement: "immediately" },
+      { pattern: /\bthanks\b/gi, replacement: "acknowledge" },
+      { pattern: /\bsorry\b/gi, replacement: "this should not have happened" },
+      { pattern: /\bi'm\b/gi, replacement: "I am" },
+      { pattern: /\bi'll\b/gi, replacement: "I will" },
+      { pattern: /\bit's\b/gi, replacement: "it is" },
+      { pattern: /\bthat's\b/gi, replacement: "that is" },
+      { pattern: /\bdon't\b/gi, replacement: "do not" },
+      { pattern: /\bwon't\b|\bwon't\b/gi, replacement: "will not" },
+      { pattern: /\bcan't\b/gi, replacement: "cannot" },
+      { pattern: /\bwould like to\b/gi, replacement: "must" },
+    ],
+    empathetic: [
+      { pattern: /\bi understand\b/gi, replacement: "I truly understand" },
+      { pattern: /\bsorry\b/gi, replacement: "I am truly sorry" },
+      { pattern: /\bproblem\b/gi, replacement: "challenge" },
+      { pattern: /\bissue\b/gi, replacement: "situation" },
+      { pattern: /\berror\b/gi, replacement: "unfortunate mistake" },
+      { pattern: /\bthanks\b/gi, replacement: "I am so grateful" },
+      { pattern: /\bgood\b/gi, replacement: "wonderful" },
+      { pattern: /\bgreat\b/gi, replacement: "fantastic" },
+      { pattern: /\bdifficult\b/gi, replacement: "challenging" },
+      { pattern: /\bhard\b/gi, replacement: "tough" },
+      { pattern: /\bplease\b/gi, replacement: "I would kindly ask" },
+      { pattern: /\bdon't worry\b/gi, replacement: "please do not worry" },
+      { pattern: /\bi'll help\b/gi, replacement: "I am here to support you" },
+      { pattern: /\byou need to\b/gi, replacement: "it might help to" },
+      { pattern: /\bcan't\b/gi, replacement: "are unable to" },
+      { pattern: /\bgotta\b/gi, replacement: "have to" },
+      { pattern: /\byou have to\b/gi, replacement: "I know it is not easy, but" },
+      { pattern: /\byou keep (\w+)ing\b/gi, replacement: "I have noticed you have been $1ing" },
+      { pattern: /\bi will not\b/gi, replacement: "I am afraid I cannot" },
+      { pattern: /\bwe did not agree to this\b/gi, replacement: "I understand we may have had a different understanding" },
+      { pattern: /\bpay us more\b/gi, replacement: "work out the compensation" },
+      { pattern: /\bextra work\b/gi, replacement: "additional effort" },
+      { pattern: /\bif you want\b/gi, replacement: "if you feel it is necessary to proceed with" },
+      { pattern: /\bnot fair\b/gi, replacement: "I can see how this feels unfair" },
+      { pattern: /\bwrong\b/gi, replacement: "not quite right" },
+      { pattern: /\bno\b/gi, replacement: "I wish I could say yes but" },
+      { pattern: /\bi think\b/gi, replacement: "I feel" },
+      { pattern: /\bi need\b/gi, replacement: "I could really use" },
+      { pattern: /\bsend me\b/gi, replacement: "could you kindly share" },
+      { pattern: /\bgive me\b/gi, replacement: "I would really appreciate" },
+      { pattern: /\bdone\b/gi, replacement: "taken care of" },
+      { pattern: /\bfix\b/gi, replacement: "sort out" },
+      { pattern: /\bhelp\b/gi, replacement: "lend a hand" },
+      { pattern: /\bcheck\b/gi, replacement: "look into" },
+      { pattern: /\bstop\b/gi, replacement: "take a break from" },
+      { pattern: /\bwait\b/gi, replacement: "bear with me" },
+      { pattern: /\bnow\b/gi, replacement: "as soon as you can" },
+      { pattern: /\basap\b|\bugent\b/gi, replacement: "whenever you get a chance" },
+      { pattern: /\bi'm\b/gi, replacement: "I am" },
+      { pattern: /\bi'll\b/gi, replacement: "I will" },
+      { pattern: /\bit's\b/gi, replacement: "it is" },
+      { pattern: /\bthat's\b/gi, replacement: "that is" },
+      { pattern: /\bdon't\b|\bdon't\b/gi, replacement: "do not" },
+      { pattern: /\bdoesn't\b/gi, replacement: "does not" },
+      { pattern: /\bdidn't\b/gi, replacement: "did not" },
+    ],
+    neutral: [
+      { pattern: /\byeah\b|\byep\b/gi, replacement: "yes" },
+      { pattern: /\bnah\b|\bnope\b/gi, replacement: "no" },
+      { pattern: /\bthanks\b/gi, replacement: "thank you" },
+      { pattern: /\bwanna\b|\bwant to\b/gi, replacement: "would like to" },
+      { pattern: /\bgonna\b|\bgoing to\b/gi, replacement: "will" },
+      { pattern: /\bgotta\b/gi, replacement: "have to" },
+      { pattern: /\bjust\b/gi, replacement: "" },
+      { pattern: /\bdon't\b|\bdon't\b/gi, replacement: "do not" },
+      { pattern: /\bcan't\b/gi, replacement: "cannot" },
+      { pattern: /\bwon't\b|\bwon't\b/gi, replacement: "will not" },
+      { pattern: /\bdoesn't\b/gi, replacement: "does not" },
+      { pattern: /\bdidn't\b/gi, replacement: "did not" },
+      { pattern: /\bhaven't\b/gi, replacement: "have not" },
+      { pattern: /\bhasn't\b/gi, replacement: "has not" },
+      { pattern: /\bi'm\b/gi, replacement: "I am" },
+      { pattern: /\bi'll\b/gi, replacement: "I will" },
+      { pattern: /\bit's\b/gi, replacement: "it is" },
+      { pattern: /\bthat's\b/gi, replacement: "that is" },
+      { pattern: /\bthere's\b/gi, replacement: "there is" },
+      { pattern: /\bhere's\b/gi, replacement: "here is" },
+      { pattern: /\bwont\b|\bwon't\b/gi, replacement: "will not" },
+      { pattern: /\bi'd\b/gi, replacement: "I would" },
+      { pattern: /\bit'll\b/gi, replacement: "it will" },
+      { pattern: /\bwe'll\b/gi, replacement: "we will" },
+    ],
+  };
+
+  return rules[tone] || rules.professional;
+}
+
+function getToneOpening(tone, recipient, commType) {
+  const name = recipient || "there";
+  const isSlack = commType === "slack";
+  const t = tone.toLowerCase();
+
+  const openings = {
+    professional: isSlack ? `Hi ${name},\n\n` : `Dear ${name},\n\n`,
+    diplomatic: isSlack ? `Hello ${name},\n\n` : `Dear ${name},\n\n`,
+    firm: isSlack ? `${name},\n\n` : `Dear ${name},\n\n`,
+    empathetic: isSlack ? `Hi ${name},\n\n` : `Dear ${name},\n\n`,
+    neutral: isSlack ? `Hi ${name},\n\n` : `Hello ${name},\n\n`,
+  };
+
+  return openings[t] || openings.professional;
+}
+
+function getToneClosing(tone, commType) {
+  const isSlack = commType === "slack";
+  const t = tone.toLowerCase();
+
+  const closings = {
+    professional: isSlack ? "\n\nBest regards,\n[Your Name]" : "\n\nSincerely,\n[Your Name]",
+    diplomatic: isSlack ? "\n\nWarmly,\n[Your Name]" : "\n\nWarm regards,\n[Your Name]",
+    firm: isSlack ? "\n\nRegards,\n[Your Name]" : "\n\nBest regards,\n[Your Name]",
+    empathetic: isSlack ? "\n\nWith appreciation,\n[Your Name]" : "\n\nWith gratitude,\n[Your Name]",
+    neutral: isSlack ? "\n\nThanks,\n[Your Name]" : "\n\nRegards,\n[Your Name]",
+  };
+
+  return closings[t] || closings.professional;
+}
+
 export function generateSmartFallback({ message, communicationType, recipient, tone, subject }) {
-  const recipientName = recipient || "Recipient";
+  if (!message || !message.trim()) return "";
+
   const desiredTone = tone || "Professional";
   const isSlack = communicationType === "slack";
 
-  // Only include subject line for email-like communications
+  // Extract subject line
   const subjectLine = subject && !isSlack ? `Subject: ${subject}\n\n` : "";
 
-  let greeting = "",
-    closing = "";
-  if (isSlack) {
-    greeting = `Hey ${recipientName},\n\n`;
-    closing = "\n\nLet me know if this works!";
-  } else if (communicationType === "email" || communicationType === "client") {
-    greeting = `Dear ${recipientName},\n\n`;
-    closing = `\n\nSincerely,\n[Your Name]`;
-  } else {
-    greeting = `Hi ${recipientName},\n\n`;
-    closing = `\n\nRegards,\n[Your Name]`;
-  }
-
-  // Normalize whitespace in the user's message
-  const text = message ? message.trim().replace(/\s+/g, " ") : "";
-
-  // Clean message from any existing greetings/closings
-  let cleaned = text.replace(/^(hi|hello|dear|hey|to:)\s+[a-zA-Z0-9_\-\s]+,?/i, "").trim();
+  // Clean the message — strip existing greetings/closings
+  let cleaned = message.trim().replace(/\s+/g, " ");
+  cleaned = cleaned.replace(/^(hi|hello|dear|hey|to:)\s+[a-zA-Z0-9_\-\s]+,?/i, "").trim();
   cleaned = cleaned
-    .replace(/(sincerely|regards|best regards|thanks|thank you|best|cheers),?\s*([a-zA-Z0-9_\-\s]*)$/i, "")
+    .replace(/(sincerely|regards|best regards|thanks|thank you|best|cheers|warmly|gratitude),?\s*([a-zA-Z0-9_\-\s]*)$/i, "")
     .trim();
 
-  const formattedBody = cleaned.trim();
-  const endsWithPunctuation = /[.!?,]$/.test(formattedBody);
-  const bodyWithPeriod = endsWithPunctuation ? formattedBody : `${formattedBody}.`;
+  // Reword the message for the desired tone
+  const reworded = rewordMessage(cleaned, desiredTone);
 
-  // Helper to check for exact word/phrase matches to avoid substring false positives (e.g. "sending" matching "send")
-  const match = (pattern) => new RegExp(`\\b(${pattern})\\b`, "i").test(cleaned);
+  // Build the output
+  const greeting = getToneOpening(desiredTone, recipient, communicationType);
+  const closing = getToneClosing(desiredTone, communicationType);
 
-  // Detect theme
-  let theme = "default";
-  if (match("delay|timeline|deadline|completed by now|late|behind schedule|not finish|unacceptable")) {
-    if (match("we|us|our|sorry|apologize|fail|won't|will not")) {
-      theme = "delay_notification";
-    } else {
-      theme = "delay_request";
-    }
-  } else if (match("sorry|apologize|regret|oversight|mistake")) {
-    theme = "apology";
-  } else if (match("meet|meeting|call|discuss|schedule|connect")) {
-    theme = "meeting";
-  } else if (match("please|could you|would you|request|send|need")) {
-    theme = "request";
-  } else if (
-    match("outage|outages|system crash|service interruption") ||
-    /api\b.*\bdown/i.test(cleaned) ||
-    /server\b.*\bdown/i.test(cleaned) ||
-    /service\b.*\bdown/i.test(cleaned) ||
-    /system\b.*\bdown/i.test(cleaned) ||
-    /platform\b.*\bdown/i.test(cleaned)
-  ) {
-    theme = "escalation";
-  }
-
-  // Pre-crafted high-quality rewrites for each theme/tone
-  // Each template ends the body with a period so spacing is consistent
-  const sep = " ";
-  const templates = {
-    delay_notification: {
-      professional: `I am writing to inform you of an adjustment to our project schedule. Unfortunately, we have encountered some unexpected challenges:${sep}${bodyWithPeriod}${sep}We are working diligently to resolve these issues and will keep you updated on our progress. Thank you for your patience and understanding.`,
-      diplomatic: `I hope you are having a productive week. I wanted to touch base regarding our project timeline. We have hit a few unexpected roadblocks:${sep}${bodyWithPeriod}${sep}We are doing everything we can to get back on track and appreciate your understanding.`,
-      firm: `Please note that we have encountered a delay in our delivery timeline:${sep}${bodyWithPeriod}${sep}We are prioritizing this issue to minimize any impact on operations. We will provide a confirmed delivery schedule as soon as possible.`,
-      empathetic: `I hope you are doing well. I wanted to reach out and let you know that we have run into some delays on our end:${sep}${bodyWithPeriod}${sep}I know you are relying on this delivery, and I sincerely apologize for any inconvenience this causes. Let me know if there is anything we can do to support you in the meantime.`,
-      neutral: `Regarding our project timeline:${sep}${bodyWithPeriod}${sep}We have encountered a delay and are working to resolve it.`,
-    },
-    delay_request: {
-      professional: `I am writing to follow up on the status of the project. We had scheduled completion by this date, but we have not yet received a progress report. Please provide a status update and a revised completion timeline at your earliest convenience so we can align our plans.`,
-      diplomatic: `I hope you are having a productive week. I wanted to touch base regarding the project timeline. I know there are many moving parts, but since we are past the expected completion date, we would appreciate more visibility on the progress. Let's connect to see how we can support you in moving this forward.`,
-      firm: `Please note that the project timeline has been delayed, and we have not seen the expected progress or communication. This situation is critical to our planning. Please provide a status update and a confirmed resolution timeline by the end of the day today.`,
-      empathetic: `I hope you are doing well. I wanted to reach out regarding the project schedule. I know how much effort you have been putting into this, and I understand that unexpected challenges can come up. Let know how things are going and if there is anything I can do to help support you.`,
-      neutral: `This is a follow-up regarding the project timeline. We need to receive a progress update and a resolution schedule.`,
-    },
-    apology: {
-      professional: `Please accept my sincere apologies for the oversight. I take full responsibility for the error, and I am actively working on a resolution. I will provide another update shortly and appreciate your patience.`,
-      diplomatic: `I wanted to address the recent issue and express my regret for any inconvenience caused. We are reviewing what happened to ensure it is not repeated, and we appreciate your understanding as we resolve this.`,
-      firm: `I acknowledge the error on our part and am taking steps to correct it. A resolution is currently underway to prevent further issues.`,
-      empathetic: `I am very sorry for the mistake. I understand how this affects you and feel terrible about the inconvenience. I am doing everything I can to fix it immediately.`,
-      neutral: `Regarding the recent error, please accept our apology. We are working to resolve the issue.`,
-    },
-    meeting: {
-      professional: `I would like to schedule a time for us to connect and discuss the next steps for our project. Please let me know your availability over the coming days, or feel free to send a calendar invitation.`,
-      diplomatic: `I hope you're having a good week. When you have a moment, I would love to connect briefly to align on our project details. Let me know what times work best for you, and we can set up a short call.`,
-      firm: `We need to schedule a meeting as soon as possible to address outstanding items. Please share your availability for a call today or tomorrow.`,
-      empathetic: `I hope your week is going well. If you have some time, I'd love to chat and see how things are going with the project. Let me know when you might be free for a casual catch-up.`,
-      neutral: `Let's schedule a time to meet and discuss the project updates.`,
-    },
-    request: {
-      professional: `I am writing to request additional details regarding this matter. Could you please provide the necessary information at your earliest convenience? Thank you for your assistance.`,
-      diplomatic: `I hope you are well. When you have a moment, could you help clarify a few details? Your guidance would be highly valuable to help us move forward.`,
-      firm: `Please provide the requested information by tomorrow. We require these details to proceed on schedule.`,
-      empathetic: `I hope your week is going well. If you have some time, could you share your thoughts on this? I want to make sure I align with your expectations.`,
-      neutral: `Please send the details regarding this request.`,
-    },
-    escalation: {
-      professional: `I am writing to formally raise a critical concern regarding the performance of your services. We have experienced multiple service outages recently, which are causing operational issues and impacting our users. Please investigate this issue immediately and provide a detailed root cause analysis and resolution plan.`,
-      diplomatic: `I hope you are well. I wanted to bring to your attention some recent service interruptions we've experienced with your platform. These issues are affecting our operations, so we would appreciate it if your team could look into this urgently and help us ensure stability moving forward.`,
-      firm: `Please be advised that we are experiencing critical service outages with your system. This is causing significant disruption and financial impact. We require immediate resolution of this issue and a confirmation of service stability. If this is not resolved permanently, we will be forced to re-evaluate our agreement and pursue necessary actions.`,
-      empathetic: `I am reaching out to let you know we've run into some critical issues with the service stability today. I know your team is working hard, but it's causing a lot of pressure on our side with our users. Let us know how we can work together to get this resolved as quickly as possible.`,
-      neutral: `We are reporting service outages with your platform. We require an immediate update on the status and a plan for resolution.`,
-    },
-    default: {
-      professional: `I am writing to follow up regarding the recent update. To summarize the key details:${sep}${bodyWithPeriod}${sep}Please let me know if you have any questions or need further clarification.`,
-      diplomatic: `I hope you are having a productive week. I wanted to touch base regarding the following:${sep}${bodyWithPeriod}${sep}I understand there are multiple aspects to consider here, and I look forward to working with you to resolve this.`,
-      firm: `Please review the following important update:${sep}${bodyWithPeriod}${sep}This requires your prompt attention. Please confirm the timeline for completion at your earliest convenience.`,
-      empathetic: `I hope you are doing well. I wanted to reach out regarding the following:${sep}${bodyWithPeriod}${sep}I know there has been a lot of effort put into this, and I appreciate your dedication. Let me know if there is anything I can do to help.`,
-      neutral: `Regarding the item below:${sep}${bodyWithPeriod}${sep}We should track this update and coordinate on next steps.`,
-    },
-  };
-
-  const toneKey = desiredTone.toLowerCase();
-  const matchedTheme = templates[theme] ? theme : "default";
-  const bodyText = templates[matchedTheme][toneKey] || templates[matchedTheme].professional;
-
-  return `${subjectLine}${greeting}${bodyText}${closing}`;
+  return `${subjectLine}${greeting}${reworded}${closing}`;
 }
 
 export function getImprovements(message = "", origTone = "Unstructured / Informal", newTone = "Professional") {
@@ -174,12 +399,10 @@ export function getImprovements(message = "", origTone = "Unstructured / Informa
   const lower = text.toLowerCase();
   const improvements = [];
 
-  // 1. Casing / Punctuation
   if (/[A-Z]{3,}/.test(text) || text.includes("!")) {
     improvements.push("Standardized sentence casing and lowered aggressive punctuation emphasis.");
   }
 
-  // 2. Greeting analysis
   const hasGreeting = /^(hi|hello|dear|hey|to:)\s+/i.test(text);
   if (!hasGreeting) {
     improvements.push("Structured the opening with a polite and appropriate greeting.");
@@ -190,7 +413,6 @@ export function getImprovements(message = "", origTone = "Unstructured / Informa
     improvements.push("Upgraded the informal greeting to standard business correspondence style.");
   }
 
-  // 3. Wording and phrase improvements based on detected negative words
   const matchedWords = [];
   if (lower.includes("unacceptable")) matchedWords.push("'unacceptable'");
   if (lower.includes("disappointed")) matchedWords.push("'disappointed'");
@@ -210,7 +432,6 @@ export function getImprovements(message = "", origTone = "Unstructured / Informa
     );
   }
 
-  // 4. Structure & paragraph organization
   const wordsCount = text.split(/\s+/).length;
   if (wordsCount < 10) {
     improvements.push("Expanded the brief input into a complete message with context and details.");
@@ -218,15 +439,11 @@ export function getImprovements(message = "", origTone = "Unstructured / Informa
     improvements.push("Organized continuous text into neat paragraphs for improved layout and readability.");
   }
 
-  // 5. Closing / Signature
-  const hasClosing = /(sincerely|regards|best regards|thanks|thank you|best|cheers),?\s*([a-zA-Z0-9_\-\s]*)$/i.test(
-    text
-  );
+  const hasClosing = /(sincerely|regards|best regards|thanks|thank you|best|cheers),?\s*([a-zA-Z0-9_\-\s]*)$/i.test(text);
   if (!hasClosing) {
     improvements.push("Appended a professional sign-off and a placeholder for contact details.");
   }
 
-  // Fallbacks if we don't have enough specific improvements (we want at least 3)
   if (improvements.length < 3) {
     if (newTone.toLowerCase() === "firm") {
       improvements.push("Stated expectations and timelines clearly and assertively.");
