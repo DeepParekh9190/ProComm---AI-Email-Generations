@@ -1,7 +1,7 @@
 import { detectOriginalTone, generateSmartFallback, getImprovements, generateAlternatives } from "./fallback-engine.js";
 import { getPromptSettings } from "../telemetry.js";
 
-const MODEL = process.env.OPENROUTER_MODEL || "openrouter/free";
+const MODEL = process.env.OPENROUTER_MODEL || "openai/gpt-4o-mini";
 const API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 function safeParseJSON(text) {
