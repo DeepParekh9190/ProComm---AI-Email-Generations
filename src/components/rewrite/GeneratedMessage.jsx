@@ -247,7 +247,7 @@ export default memo(function GeneratedMessage({ data, loading }) {
         )}
 
         {showDiff ? (
-          <div className="prose prose-sm max-w-none whitespace-pre-wrap text-[13.5px] leading-relaxed text-text-secondary">
+          <div className="prose prose-sm max-w-none whitespace-pre-wrap text-[13.5px] leading-relaxed text-text-primary">
             {diffResult.map((part, index) => {
               if (part.type === "added") {
                 return (
@@ -273,7 +273,7 @@ export default memo(function GeneratedMessage({ data, loading }) {
             })}
           </div>
         ) : (
-          <div className="prose prose-sm max-w-none whitespace-pre-wrap text-[13.5px] leading-relaxed text-text-secondary">
+          <div className="prose prose-sm max-w-none whitespace-pre-wrap text-[13.5px] leading-relaxed text-text-primary">
             {isTyping ? displayedText : (data.rewrittenMessage || (
               <span className="flex items-center gap-2 text-gray-400 select-none">
                 <Loader2 className="h-3.5 w-3.5 animate-spin text-brand-500" />

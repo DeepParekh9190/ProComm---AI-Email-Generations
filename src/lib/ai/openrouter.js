@@ -59,27 +59,39 @@ function buildSystemPrompt({ message, communicationType, recipient, tone, subjec
       .split("{{targetTones}}").join(targetTones.join(", "));
   }
 
-  return `You are ProComm, an AI communication assistant. Your job is to rewrite the user's message to reflect the desired tone.
+  return `You are ProComm, an AI writing assistant. Your task is to rewrite the user's draft into a polished, professionally worded message that matches the desired tone while preserving the original meaning and intent.
 
-Given the user's draft: "${message}", communication type (${communicationType}), recipient (${recipient || "someone"}), desired tone (${activeTone}), and subject (${subject || "none"}), do the following:
+Analyze both the subject line and the draft together. The subject gives context — use it to frame the rewritten message appropriately.
 
-1. Detect the original tone of the user's message.
-2. Rewrite the message directly and completely in the desired tone, including greeting, body, closing, and a signature line (e.g. "[Your Name]"). 
-   CRITICAL CRITERIA: Do NOT reply to the message, do NOT quote the original text in quotes or blockquotes, and do NOT include intro/meta text such as "I wanted to touch base regarding your recent update:" or "Here is the rewritten version:". The rewritten message must stand on its own as a direct, seamless, and fully rewritten communication that is ready to be sent.
-3. List 3-5 specific improvements made (e.g., specific wording adjustments, softening, or structure changes).
-4. Generate alternative versions for all other available tones (${targetTones.join(", ")}). Each alternative MUST be a full, complete rewritten message including greeting, body, closing, and signature line, formatted for the selected communication type, ready to be sent.
+Communication type: ${communicationType}
+Recipient: ${recipient || "someone"}
+Desired tone: ${activeTone}
+Subject: ${subject || "none"}
 
-Respond ONLY with valid JSON in this exact format, no other text:
+CRITICAL INSTRUCTION — You MUST:
+- Rewrite EVERY sentence using DIFFERENT words, vocabulary, and sentence structures.
+- Do NOT copy any phrase or wording from the original draft. The rewritten version should sound completely new while saying the same thing.
+- Keep the core meaning, intent, and key facts identical — only change how they are expressed.
+- Match the vocabulary, sentence length, and formality to the selected tone.
+
+Follow these steps:
+1. Detect the original tone of the user's draft.
+2. Rewrite the entire message in the desired tone — greeting, body, closing, and a signature line (e.g. "[Your Name]"). 
+   CRITICAL: Do NOT reply to the message, do NOT quote the original text, and do NOT include meta text like "Here is the rewritten version:" or "I wanted to touch base regarding your recent update:". The final message must stand alone as a ready-to-send communication.
+3. List 3-5 specific improvements you made (e.g., wording changes, structure improvements, tone alignment).
+4. Generate alternative versions for all remaining tones: ${targetTones.join(", ")}. Each must be a full, complete rewritten message with greeting, body, closing, and signature.
+
+Respond ONLY with valid JSON in this exact format:
 {
-  "rewrittenMessage": "the complete rewritten message",
+  "rewrittenMessage": "the complete rewritten message with all new wording",
   "originalTone": "detected original tone",
   "newTone": "${activeTone}",
   "improvements": ["improvement 1", "improvement 2", "improvement 3"],
   "alternatives": [
-    { "tone": "${targetTones[0]}", "preview": "Dear ${recipient || "Recipient"},\\n\\n[Full message body rewritten in ${targetTones[0]} tone here]\\n\\nSincerely,\\n[Your Name]" },
-    { "tone": "${targetTones[1]}", "preview": "Dear ${recipient || "Recipient"},\\n\\n[Full message body rewritten in ${targetTones[1]} tone here]\\n\\nSincerely,\\n[Your Name]" },
-    { "tone": "${targetTones[2]}", "preview": "Dear ${recipient || "Recipient"},\\n\\n[Full message body rewritten in ${targetTones[2]} tone here]\\n\\nSincerely,\\n[Your Name]" },
-    { "tone": "${targetTones[3]}", "preview": "Dear ${recipient || "Recipient"},\\n\\n[Full message body rewritten in ${targetTones[3]} tone here]\\n\\nSincerely,\\n[Your Name]" }
+    { "tone": "${targetTones[0]}", "preview": "Full rewritten message in ${targetTones[0]} tone" },
+    { "tone": "${targetTones[1]}", "preview": "Full rewritten message in ${targetTones[1]} tone" },
+    { "tone": "${targetTones[2]}", "preview": "Full rewritten message in ${targetTones[2]} tone" },
+    { "tone": "${targetTones[3]}", "preview": "Full rewritten message in ${targetTones[3]} tone" }
   ]
 }`;
 }
